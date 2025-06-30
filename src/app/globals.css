@@ -116,7 +116,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+.pricing-table-container {
+  @apply transition-all duration-500 ease-in-out;
+}
+
+
+.pricing_table .cl-button {
+  @apply bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 hover:scale-105 shadow-lg;
 }
