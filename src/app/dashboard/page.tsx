@@ -3,9 +3,23 @@ import { HeroSection } from '@/components/complex/Herosection'
 import { AIToolCard } from '@/components/compound/AIToolsCard'
 import { FileText, Map, MessageCircle, PenTool } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { v7 } from 'uuid'
+import axios from 'axios'
+import { useEffect } from 'react'
 
 export default function AICareerCoachLanding () {
   const router = useRouter()
+  const chatid = v7()
+
+  const onClickChatAgent = async () => {
+    const result = await axios.post('/api/history', {
+      recordId: chatid,
+      content: []
+    })
+    console.log(result)
+    router.push('/ai-tools/ai-chat/' + chatid)
+  }
+
   return (
     <div className='min-h-screen bg-gray-950 text-white'>
       <HeroSection />
@@ -28,7 +42,7 @@ export default function AICareerCoachLanding () {
               icon={<MessageCircle className='w-8 h-8 text-white' />}
               color='purple'
               onClickLabel='Ask Now'
-              onClick={() => router.push('/ai-tools/ai-chat')}
+              onClick={onClickChatAgent}
             />
             <AIToolCard
               title='AI Resume Analyzer'
@@ -56,4 +70,7 @@ export default function AICareerCoachLanding () {
       </section>
     </div>
   )
+}
+function uuidv4 () {
+  throw new Error('Function not implemented.')
 }
