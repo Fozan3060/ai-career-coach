@@ -23,16 +23,16 @@ export default function ClientLayout ({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const showSidebar =
-    ['/dashboard', '/billing', '/ai-tools', '/history'].includes(pathname) ||
-    pathname.startsWith('/profile')
+  const NotshowSidebar =
+    ['/'].includes(pathname)
+   
   return (
     <ClerkProvider>
       <html lang='en' suppressHydrationWarning className='dark'>
         <body
           className={`${geistSans.variable} ${geistMono.variable} font-sans bg-gray-950 text-white`}
         >
-          {showSidebar ? (
+          {!NotshowSidebar ? (
             <div className='flex min-h-screen bg-gray-950'>
               <SidebarProvider>
                 <AppSidebar />
