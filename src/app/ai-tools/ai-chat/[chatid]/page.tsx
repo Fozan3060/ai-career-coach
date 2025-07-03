@@ -17,8 +17,8 @@ const AIChat = () => {
     sendMessage,
     clearError,
     updateMessageList,
-    getMessageList,
-   } = useChat()
+    getMessageList
+  } = useChat()
   const { chatid } = useParams()
   const toggleHeader = () => {
     setIsHeaderCollapsed(!isHeaderCollapsed)
