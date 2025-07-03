@@ -22,31 +22,36 @@ const navigationItems = [
     title: "Workspace",
     url: "/dashboard",
     icon: Home,
-    color: "from-purple-500 to-purple-600",
+    color: "from-purple-600/20 via-purple-500/10 to-blue-600/20", // Gradient for active background
+    iconBaseColor: "blue", // Base color for icon text when not active
   },
   {
     title: "AI Tools",
     url: "/ai-tools",
     icon: Bot,
-    color: "from-blue-500 to-blue-600",
+    color: "from-blue-600/20 via-blue-500/10 to-purple-600/20",
+    iconBaseColor: "purple",
   },
   {
     title: "My History",
     url: "/history",
     icon: History,
-    color: "from-green-500 to-green-600",
+    color: "from-emerald-600/20 via-emerald-500/10 to-blue-600/20",
+    iconBaseColor: "emerald",
   },
   {
     title: "Billing",
     url: "/billing",
     icon: CreditCard,
-    color: "from-orange-500 to-orange-600",
+    color: "from-orange-600/20 via-orange-500/10 to-yellow-600/20",
+    iconBaseColor: "orange",
   },
   {
     title: "Profile",
     url: "/profile",
     icon: User,
-    color: "from-purple-500 to-pink-500",
+    color: "from-pink-600/20 via-pink-500/10 to-purple-600/20",
+    iconBaseColor: "pink",
   },
 ]
 
@@ -55,60 +60,62 @@ export function AppSidebar() {
   const path = usePathname()
 
   return (
-    <Sidebar  className="bg-slate-950 fixed">
-      <SidebarHeader className="bg-slate-950">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="/dashboard" className="flex items-center group hover:bg-gray-800/50 transition-all duration-300">
-                <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 text-white shadow-lg group-hover:shadow-purple-500/25 group-hover:scale-105 transition-all duration-300">
-                  <Zap className="size-5" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight ml-3">
-                  <span className="truncate font-bold text-white text-base">AI Career Coach</span>
-                  <span className="truncate text-xs text-purple-300 flex items-center gap-1">
-                    <Sparkles className="size-3" />
-                    Pro Plan
-                  </span>
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+    <Sidebar className="bg-gray-950 fixed" collapsible="icon">
+      {/* Elegant Header */}
+      <SidebarHeader className="border-b px-6 py-6 bg-gray-900/50 border-gray-800">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+            <Zap className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-white font-semibold text-lg tracking-tight">AI Career Coach</h1>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <Sparkles className="w-3 h-3 text-purple-400" />
+              <span className="text-xs text-gray-400 font-medium">Pro Plan</span>
+            </div>
+          </div>
+        </div>
       </SidebarHeader>
 
-      <SidebarContent className="bg-slate-950">
+      {/* Elegant Navigation */}
+      <SidebarContent className="px-4 py-6 bg-gray-950">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-2 p-2">
-              {navigationItems.map((item, index) => {
+            <SidebarMenu className="space-y-2">
+              {navigationItems.map((item) => {
                 const isActive = path.startsWith(item.url)
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       asChild
+                      tooltip={item.title}
                       className={`
-                        relative overflow-hidden rounded-xl transition-all duration-300 group
+                        w-full h-12 px-4 rounded-xl transition-all duration-300 group relative overflow-hidden
                         ${
                           isActive
-                            ? "bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/30 text-white shadow-lg shadow-purple-500/10"
-                            : "hover:bg-gray-800/50 text-gray-300 hover:text-white border border-transparent hover:border-gray-700"
+                            ? `bg-gradient-to-r ${item.color} text-white border border-purple-500/30 shadow-lg shadow-purple-500/10`
+                            : "text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent hover:border-gray-700/50"
                         }
                       `}
                     >
-                      <a href={item.url} className="flex items-center gap-3 w-full px-4 py-3 rounded-xl">
-                        <div
+                      <a href={item.url} className="flex items-center gap-4 w-full relative z-10">
+                        <item.icon
                           className={`
-                          p-2 rounded-lg bg-gradient-to-br ${item.color} 
-                          ${isActive ? "shadow-lg" : "opacity-70 group-hover:opacity-100"}
-                          transition-all duration-300 group-hover:scale-110
-                        `}
-                        >
-                          <item.icon className="size-4 text-white bg-gradient-to-br ${item.color} " />
-                        </div>
-                        <span className="font-medium">{item.title}</span>
+                            !w-6  !h-6 flex-shrink-0 transition-all duration-300
+                            ${isActive ? "text-white" : `text-${item.iconBaseColor}-400`}
+                            group-hover:scale-110
+                          `}
+                        />
+                        <span className="font-medium text-base tracking-wide">{item.title}</span>
+
+                        {/* Active indicator */}
                         {isActive && (
-                          <div className="absolute right-2 w-2 h-2 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full animate-pulse"></div>
+                          <div className="absolute right-3 w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                        )}
+
+                        {/* Subtle hover effect */}
+                        {!isActive && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/5 via-transparent to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                         )}
                       </a>
                     </SidebarMenuButton>
@@ -120,6 +127,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
+      {/* Elegant Footer */}
       <SidebarFooter className="bg-gray-900/50 border-t border-gray-800">
         <SidebarMenu>
           <SidebarMenuItem>
