@@ -1,129 +1,136 @@
-"use client"
+import { Chat, Message } from '@/types/chat'
+import { useParams } from 'next/navigation'
+import { useState } from 'react'
+import axios from 'axios'
 
-import { useState } from "react"
-import axios from "axios"
-import type { Chat, Message } from "@/types/chat"
-
+type GetChatHistoryResponse = {
+  id: number
+  recordId: string
+  content: Chat
+  userEmail?: string
+  createdAt?: string | null
+}
 interface AiApiResponse {
-        output?: {
-          output?: { content?: string }[]
-        }
-      }
-
-export function useChat() {
+  output?: {
+    output?: { content?: string }[]
+  }
+}
+export function useChat () {
   const [chats, setChats] = useState<Chat[]>([])
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const currentChat = chats.find((chat) => chat.id === currentChatId)
-
-  const createNewChat = () => {
-    const newChat: Chat = {
-      id: Date.now().toString(),
-      title: "New Chat",
-      messages: [],
-      createdAt: new Date(),
-    }
-    setChats((prev) => [newChat, ...prev])
-    setCurrentChatId(newChat.id)
-  }
+  const { chatid } = useParams() as { chatid?: string }
+  const currentChat = chats.find(chat => chat.id === currentChatId) || null
 
   const sendMessage = async (content: string) => {
-    if (!content.trim()) return
+    if (!content.trim() || !currentChatId) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
       content: content.trim(),
-      role: "user",
-      timestamp: new Date(),
+      role: 'user',
+      timestamp: new Date()
     }
 
-    let targetChatId = currentChatId
-
-    // If no current chat, create one
-    if (!currentChatId) {
-      const newChat: Chat = {
-        id: Date.now().toString(),
-        title: content.slice(0, 50) + (content.length > 50 ? "..." : ""),
-        messages: [userMessage],
-        createdAt: new Date(),
-      }
-      setChats((prev) => [newChat, ...prev])
-      setCurrentChatId(newChat.id)
-      targetChatId = newChat.id
-    } else {
-      // Add to existing chat
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat.id === currentChatId
-            ? {
-                ...chat,
-                messages: [...chat.messages, userMessage],
-                title:
-                  chat.messages.length === 0 ? content.slice(0, 50) + (content.length > 50 ? "..." : "") : chat.title,
-              }
-            : chat,
-        ),
+    setChats(prev =>
+      prev.map(chat =>
+        chat.id === currentChatId
+          ? {
+              ...chat,
+              messages: [...chat.messages, userMessage],
+              title:
+                chat.messages.length === 0
+                  ? content.slice(0, 50) + (content.length > 50 ? '...' : '')
+                  : chat.title
+            }
+          : chat
       )
-    }
+    )
 
     setIsLoading(true)
     setError(null)
 
     try {
-      // Make API call with actual user input
-      const result = await axios.post<AiApiResponse>("/api/ai-career-chat", {
-        userInput: content.trim(),
+      const result = await axios.post<AiApiResponse>('/api/ai-career-chat', {
+        userInput: content.trim()
       })
-
-      console.log("AI Response:", result.data)
-
-      // Extract the AI response from the nested structure
-      const aiResponseContent = result.data?.output?.output?.[0]?.content || "Sorry, I couldn't generate a response."
+      const aiResponseContent =
+        result.data?.output?.output?.[0]?.content ||
+        "Sorry, I couldn't generate a response."
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: aiResponseContent,
-        role: "assistant",
-        timestamp: new Date(),
+        role: 'assistant',
+        timestamp: new Date()
       }
 
-      // Add AI response to the chat
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat.id === targetChatId || chat.id === prev[0]?.id
-            ? {
-                ...chat,
-                messages: [...chat.messages, aiMessage],
-              }
-            : chat,
-        ),
+      setChats(prev =>
+        prev.map(chat =>
+          chat.id === currentChatId
+            ? { ...chat, messages: [...chat.messages, aiMessage] }
+            : chat
+        )
       )
-    } catch (error) {
-      console.error("Error calling AI API:", error)
-      setError("Failed to get AI response. Please try again.")
+    } catch (err) {
+      setError('AI service failed.')
 
-      // Add error message to chat
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "Sorry, I'm having trouble connecting right now. Please try again in a moment.",
-        role: "assistant",
-        timestamp: new Date(),
+        content:
+          "Sorry, I'm having trouble connecting right now. Please try again later.",
+        role: 'assistant',
+        timestamp: new Date()
       }
 
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat.id === targetChatId || chat.id === prev[0]?.id
-            ? {
-                ...chat,
-                messages: [...chat.messages, errorMessage],
-              }
-            : chat,
-        ),
+      setChats(prev =>
+        prev.map(chat =>
+          chat.id === currentChatId
+            ? { ...chat, messages: [...chat.messages, errorMessage] }
+            : chat
+        )
       )
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const updateMessageList = async () => {
+    if (!currentChat || !currentChatId) return
+    await axios.put('/api/history', {
+      content: currentChat,
+      recordId: currentChatId
+    })
+  }
+
+  const getMessageList = async () => {
+    if (!chatid) return
+
+    try {
+      const result = await axios.get<GetChatHistoryResponse>('/api/history', {
+        params: { recordId: chatid }
+      })
+
+      const record = result.data
+
+      if (record?.content) {
+        const chatFromDb: Chat = {
+          id: record.content.id,
+          title: record.content.title,
+          messages: record.content.messages.map((msg: Message) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          })),
+          createdAt: new Date(record.content.createdAt)
+        }
+
+        setChats([chatFromDb])
+        setCurrentChatId(chatFromDb.id)
+      }
+    } catch (err) {
+      console.error('Failed to fetch chat:', err)
     }
   }
 
@@ -134,8 +141,10 @@ export function useChat() {
     currentChat,
     isLoading,
     error,
-    createNewChat,
+    createNewChat: () => {},
     sendMessage,
     clearError,
+    updateMessageList,
+    getMessageList
   }
 }

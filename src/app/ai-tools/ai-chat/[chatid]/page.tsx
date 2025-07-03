@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CollapsibleHeader } from '@/components/chat/CollapsibleHeader'
 import { ErrorBanner } from '@/components/chat/ErrorBanner'
 import { WelcomeScreen } from '@/components/chat/WelcomeScreen'
@@ -15,30 +15,35 @@ const AIChat = () => {
     error,
     createNewChat,
     sendMessage,
-    clearError
-  } = useChat()
-  console.log(currentChat)
+    clearError,
+    updateMessageList,
+    getMessageList,
+   } = useChat()
+  const { chatid } = useParams()
   const toggleHeader = () => {
     setIsHeaderCollapsed(!isHeaderCollapsed)
   }
 
-  const handleSendMessage = (content: string) => {
-    sendMessage(content)
+  const handleSendMessage = async (content: string) => {
+    await sendMessage(content)
   }
+
+  useEffect(() => {
+    if (currentChat) {
+      updateMessageList()
+      console.log(currentChat.id, 'current chat id ')
+      console.log('running useffect')
+    }
+  }, [currentChat])
+
+  useEffect(() => {
+    chatid && getMessageList()
+  }, [chatid])
 
   const handleSuggestionClick = (suggestion: string) => {
     sendMessage(suggestion)
   }
 
-  const updateMessageList = async () => {
-    const result = await axios.put('/api/history', {
-        content: "Messages",
-        recordId: chatid
-    });
-    console.log(result);
-}
-
-  const {chatid} = useParams()
   console.log(chatid)
   return (
     <div className='flex flex-col h-[calc(100vh-4rem)] bg-slate-950'>

@@ -5,8 +5,6 @@ import { FileText, Map, MessageCircle, PenTool } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { v7 } from 'uuid'
 import axios from 'axios'
-import { useEffect } from 'react'
-
 export default function AICareerCoachLanding () {
   const router = useRouter()
   const chatid = v7()
@@ -14,9 +12,9 @@ export default function AICareerCoachLanding () {
   const onClickChatAgent = async () => {
     const result = await axios.post('/api/history', {
       recordId: chatid,
-      content: []
+      content: ['Dummy']
     })
-    console.log(result)
+    console.log(chatid)
     router.push('/ai-tools/ai-chat/' + chatid)
   }
 
