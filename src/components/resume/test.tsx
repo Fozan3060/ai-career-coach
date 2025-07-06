@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -8,67 +9,69 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { FileUp, Loader2, Sparkles } from 'lucide-react'
-import { useImperativeHandle, useRef, useState, forwardRef } from 'react'
+import { useState } from 'react'
 import { v7 } from 'uuid'
 import axios from 'axios'
-import { Button } from '@/components/ui/button'
 
-export type ResumeDialogueRef = {
-  open: () => void
+interface ResumeDialogueProps {
+  children: React.ReactNode
 }
 
-export const ResumeDialogue = forwardRef<ResumeDialogueRef>((_, ref) => {
-  const [open, setOpen] = useState(false)
+export function ResumeDialogue ({ children }: ResumeDialogueProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  useImperativeHandle(ref, () => ({
-    open: () => setOpen(true)
-  }))
-
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    setSelectedFile(file || null)
-    setError(null)
+    if (event.target.files && event.target.files[0]) {
+      setSelectedFile(event.target.files[0])
+      setError(null)
+    } else {
+      setSelectedFile(null)
+    }
   }
-
   const handleAnalyzeResume = async () => {
     if (!selectedFile) {
       setError('Please select a resume file to analyze.')
       return
     }
     try {
-      setIsAnalyzing(true)
       const formData = new FormData()
       const id = v7()
       formData.append('recordId', id)
       formData.append('resumeFile', selectedFile)
       const result = await axios.post('/api/ai-resume-agent', formData)
       console.log(result.data)
-    } catch (e) {
-      console.error('Resume analysis failed', e)
+      setIsAnalyzing(true)
+    } catch {
     } finally {
-      setIsAnalyzing(false)
-      setSelectedFile(null)
-      setOpen(false)
+      setIsAnalyzing(false), setSelectedFile(null)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className='bg-gray-900 text-white rounded-2xl shadow-xl'>
-        <DialogHeader>
-          <DialogTitle className='text-2xl flex gap-2 items-center'>
-            <Sparkles className='text-purple-400' />
-            AI Resume Analyzer
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent
+        className='
+          sm:max-w-[550px] md:max-w-[700px] lg:max-w-[800px]
+          bg-gray-900 border border-gray-700 text-white
+          rounded-2xl shadow-2xl shadow-purple-900/30
+          overflow-hidden
+          data-[state=open]:animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-bottom-10
+          data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-10
+        '
+      >
+        <DialogHeader className='p-6 border-b border-gray-800/50 '>
+          <DialogTitle className='text-2xl font-bold text-white flex items-center gap-3'>
+            <Sparkles className='w-6 h-6 text-purple-400 animate-pulse' /> AI
+            Resume Analyzer
           </DialogTitle>
-          <DialogDescription>
-            Upload your resume and get AI feedback instantly.
+          <DialogDescription className='text-gray-400 text-base'>
+            Upload your resume (PDF, DOCX) and get instant AI-powered feedback
+            and improvement suggestions.
           </DialogDescription>
         </DialogHeader>
-
-        <div className=' space-y-6'>
+        <div className='p-6 space-y-6'>
           <div className='flex flex-col gap-4'>
             <label
               htmlFor='resume-upload'
@@ -130,6 +133,4 @@ export const ResumeDialogue = forwardRef<ResumeDialogueRef>((_, ref) => {
       </DialogContent>
     </Dialog>
   )
-})
-
-ResumeDialogue.displayName = 'ResumeDialogue'
+}

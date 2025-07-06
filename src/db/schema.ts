@@ -13,5 +13,7 @@ export const HistoryTable = pgTable('historyTable', {
   userEmail: varchar('userEmail').references(() => usersTable.email),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .defaultNow()
-    .notNull()
+    .notNull(),
+  aiAgentType: varchar('aiAgentType'),
 })
+
