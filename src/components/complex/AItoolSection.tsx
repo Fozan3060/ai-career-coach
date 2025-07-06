@@ -1,16 +1,16 @@
 'use client'
 
 import { FileText, Map, MessageCircle, PenTool } from 'lucide-react'
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { v7 } from 'uuid'
 import { AIToolCard } from '../compound/AIToolsCard'
 import axios from 'axios'
+import { ResumeDialogue } from '../resume/ResumeDialogue'
 
 const AItoolSection = () => {
   const router = useRouter()
   const chatid = v7()
-
   const onClickChatAgent = async () => {
     const result = await axios.post('/api/history', {
       recordId: chatid,
@@ -29,13 +29,15 @@ const AItoolSection = () => {
         onClickLabel='Ask Now'
         onClick={onClickChatAgent}
       />
-      <AIToolCard
-        title='AI Resume Analyzer'
-        description='Improve your resume'
-        icon={<FileText className='w-8 h-8 text-white' />}
-        color='blue'
-        onClickLabel='Analyze Now'
-      />
+      <ResumeDialogue>
+        <AIToolCard
+          title='AI Resume Analyzer'
+          description='Improve your resume'
+          icon={<FileText className='w-8 h-8 text-white' />}
+          color='blue'
+          onClickLabel='Analyze Now'
+        />
+      </ResumeDialogue>
       <AIToolCard
         title='Career Roadmap Generator'
         description='Build your roadmap'
