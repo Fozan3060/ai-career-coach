@@ -1,23 +1,7 @@
-'use client'
+
 import { HeroSection } from '@/components/complex/Herosection'
-import { AIToolCard } from '@/components/compound/AIToolsCard'
-import { FileText, Map, MessageCircle, PenTool } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { v7 } from 'uuid'
-import axios from 'axios'
+import AItoolSection from '@/components/complex/AItoolSection'
 export default function AICareerCoachLanding () {
-  const router = useRouter()
-  const chatid = v7()
-
-  const onClickChatAgent = async () => {
-    const result = await axios.post('/api/history', {
-      recordId: chatid,
-      content: ['Dummy']
-    })
-    console.log(chatid)
-    router.push('/ai-tools/ai-chat/' + chatid)
-  }
-
   return (
     <div className='min-h-screen bg-gray-950 text-white'>
       <HeroSection />
@@ -32,39 +16,8 @@ export default function AICareerCoachLanding () {
               Start Building and Shape Your Career with these exclusive AI Tools
             </p>
           </div>
-
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto'>
-            <AIToolCard
-              title='AI Career Q&A Chat'
-              description='Ask career questions'
-              icon={<MessageCircle className='w-8 h-8 text-white' />}
-              color='purple'
-              onClickLabel='Ask Now'
-              onClick={onClickChatAgent}
-            />
-            <AIToolCard
-              title='AI Resume Analyzer'
-              description='Improve your resume'
-              icon={<FileText className='w-8 h-8 text-white' />}
-              color='blue'
-              onClickLabel='Analyze Now'
-            />
-            <AIToolCard
-              title='Career Roadmap Generator'
-              description='Build your roadmap'
-              icon={<Map className='w-8 h-8 text-white' />}
-              color='green'
-              onClickLabel='Generate Now'
-            />
-            <AIToolCard
-              title='Cover Letter Generator'
-              description='Write a cover letter'
-              icon={<PenTool className='w-8 h-8 text-white' />}
-              color='orange'
-              onClickLabel='Create Now'
-            />
-          </div>
         </div>
+        <AItoolSection/>
       </section>
     </div>
   )

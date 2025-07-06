@@ -1,181 +1,102 @@
-"use client"
-import { Bot, Building2, CreditCard, History, Home, Search, Settings, User, Zap } from "lucide-react"
+'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import Link from 'next/link'
+
+import { Button } from '@/components/ui/button'
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarRail,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/complex/AppSidebar"
+  Sparkles,
+  TrendingUp,
+  Target,
+  Zap,
+  Rocket
+} from 'lucide-react'
+import LandingHeader from '@/components/complex/LandingHeader'
+import { AIToolCard } from '@/components/compound/AIToolsCard'
+import AItoolSection from '@/components/complex/AItoolSection'
 
-
-
-export default function Dashboard() {
+export default function AICareerCoachLanding () {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="fixed top-0 left-0 right-0 z-50 flex h-16 shrink-0 items-center gap-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Workspace</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+    <div className='min-h-screen bg-gray-950 text-white'>
+      <LandingHeader />
+
+      {/* Hero Banner */}
+      <section className='relative overflow-hidden pt-24 pb-20 lg:pt-32 lg:pb-32'>
+        {/* Background gradient */}
+        <div className='absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-gray-900'></div>
+
+        {/* Animated background elements */}
+        <div className='absolute inset-0 overflow-hidden'>
+          <div className='absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse'></div>
+          <div className='absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000'></div>
+        </div>
+
+        <div className='relative container mx-auto px-4 text-center'>
+          {/* Badge */}
+          <div className='inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-2 mb-8 animate-slide-in'>
+            <Rocket className='w-4 h-4 text-purple-400' />
+            <span className='text-sm text-purple-300 font-medium'>
+              Join Our AI Career Community
+            </span>
           </div>
-          <div className="ml-auto px-3">
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input type="search" placeholder="Search..." className="w-[200px] pl-8 md:w-[300px]" />
-              </div>
-              <Button variant="outline" size="icon">
-                <Settings className="h-4 w-4" />
-              </Button>
+
+          {/* Main heading */}
+          <h1 className='text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent animate-slide-in delay-100'>
+            Land Your Dream Job with the{' '}
+            <span className='bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent'>
+              AI Career Coach
+            </span>
+          </h1>
+
+          {/* Subtitle */}
+          <p className='text-xl lg:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed animate-slide-in delay-200'>
+            Personalized job search, resume tips, mock interviews, and AI
+            guidance for every career level.
+          </p>
+
+          {/* CTA Button */}
+          <Link href='/ai-tools'>
+            <Button
+              size='lg'
+              className='bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-lg font-semibold rounded-full shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 animate-slide-in delay-300'
+            >
+              <Zap className='w-5 h-5 mr-2' />
+              Start Coaching
+            </Button>
+          </Link>
+
+          {/* Stats or features */}
+          <div className='flex flex-wrap justify-center gap-8 mt-16 text-sm text-gray-400 animate-slide-in delay-400'>
+            <div className='flex items-center gap-2'>
+              <TrendingUp className='w-4 h-4 text-green-400' />
+              <span>10,000+ Career Paths Analyzed</span>
+            </div>
+            <div className='flex items-center gap-2'>
+              <Target className='w-4 h-4 text-blue-400' />
+              <span>95% Success Rate</span>
+            </div>
+            <div className='flex items-center gap-2'>
+              <Sparkles className='w-4 h-4 text-purple-400' />
+              <span>AI-Powered Insights</span>
             </div>
           </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-20">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
-                <Bot className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">12</div>
-                <p className="text-xs text-muted-foreground">+20.1% from last month</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Career Goals</CardTitle>
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">8</div>
-                <p className="text-xs text-muted-foreground">3 completed this month</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">AI Recommendations</CardTitle>
-                <Zap className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">24</div>
-                <p className="text-xs text-muted-foreground">5 new this week</p>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
-              <CardHeader>
-                <CardTitle>Recent AI Conversations</CardTitle>
-                <CardDescription>Your latest career coaching sessions</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <Avatar>
-                    <AvatarFallback>AI</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">Resume Review Session</p>
-                    <p className="text-sm text-muted-foreground">
-                      Discussed improvements for software engineer position
-                    </p>
-                  </div>
-                  <Badge variant="secondary">2h ago</Badge>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Avatar>
-                    <AvatarFallback>AI</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">Interview Preparation</p>
-                    <p className="text-sm text-muted-foreground">Mock interview for product manager role</p>
-                  </div>
-                  <Badge variant="secondary">1d ago</Badge>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Avatar>
-                    <AvatarFallback>AI</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">Career Path Planning</p>
-                    <p className="text-sm text-muted-foreground">Explored transition from marketing to UX design</p>
-                  </div>
-                  <Badge variant="secondary">3d ago</Badge>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="col-span-3">
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-                <CardDescription>Start a new coaching session</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button className="w-full justify-start bg-transparent" variant="outline">
-                  <Bot className="mr-2 h-4 w-4" />
-                  Resume Review
-                </Button>
-                <Button className="w-full justify-start bg-transparent" variant="outline">
-                  <Building2 className="mr-2 h-4 w-4" />
-                  Interview Prep
-                </Button>
-                <Button className="w-full justify-start bg-transparent" variant="outline">
-                  <Zap className="mr-2 h-4 w-4" />
-                  Career Planning
-                </Button>
-                <Button className="w-full justify-start bg-transparent" variant="outline">
-                  <History className="mr-2 h-4 w-4" />
-                  Skill Assessment
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </section>
+
+      {/* AI Tools Section */}
+      <section className='py-20 bg-gray-900/50'>
+        <div className='container mx-auto px-4'>
+          <div className='text-center mb-16'>
+            <h2 className='text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent'>
+              Available AI Tools
+            </h2>
+            <p className='text-xl text-gray-400 max-w-2xl mx-auto'>
+              Start Building and Shape Your Career with these exclusive AI Tools
+            </p>
+          </div>
+
+          <AItoolSection />
+        </div>
+      </section>
+    </div>
   )
 }
