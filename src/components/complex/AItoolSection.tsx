@@ -7,12 +7,19 @@ import { v7 } from 'uuid'
 import { AIToolCard } from '../compound/AIToolsCard'
 import axios from 'axios'
 import { ResumeDialogue, ResumeDialogueRef } from '../resume/ResumeDialogue'
+import { useUser } from '@clerk/nextjs'
 
 const AItoolSection = () => {
   const router = useRouter()
+  const { isSignedIn, isLoaded } = useUser()
   const resumeModalRef = useRef<ResumeDialogueRef>(null)
 
   const onClickChatAgent = async () => {
+    if (!isLoaded) return
+
+    if (!isSignedIn) {
+      return router.push('/dashboard')
+    }
     const chatid = v7()
     await axios.post('/api/history', {
       recordId: chatid,
@@ -20,6 +27,14 @@ const AItoolSection = () => {
       aiAgentType: 'AIChatBot'
     })
     router.push('/ai-tools/ai-chat/' + chatid)
+  }
+  const onClickResumeAgent = async () => {
+    if (!isLoaded) return
+
+    if (!isSignedIn) {
+      return router.push('/dashboard')
+    }
+    resumeModalRef.current?.open()
   }
 
   const tools: {
@@ -44,7 +59,7 @@ const AItoolSection = () => {
       icon: <FileText className='w-8 h-8 text-white' />,
       color: 'blue',
       onClickLabel: 'Analyze Now',
-      onClick: () => resumeModalRef.current?.open()
+      onClick: onClickResumeAgent
     },
     {
       title: 'Career Roadmap Generator',
@@ -52,7 +67,7 @@ const AItoolSection = () => {
       icon: <Map className='w-8 h-8 text-white' />,
       color: 'green',
       onClickLabel: 'Generate Now',
-      onClick: () => {} 
+      onClick: () => {}
     },
     {
       title: 'Cover Letter Generator',
@@ -60,7 +75,7 @@ const AItoolSection = () => {
       icon: <PenTool className='w-8 h-8 text-white' />,
       color: 'orange',
       onClickLabel: 'Create Now',
-      onClick: () => {} 
+      onClick: () => {}
     }
   ]
 

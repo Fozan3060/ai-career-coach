@@ -4,7 +4,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { FileUp, Loader2, Sparkles } from 'lucide-react'
@@ -12,6 +11,7 @@ import { useImperativeHandle, useRef, useState, forwardRef } from 'react'
 import { v7 } from 'uuid'
 import axios from 'axios'
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 export type ResumeDialogueRef = {
   open: () => void
@@ -22,7 +22,9 @@ export const ResumeDialogue = forwardRef<ResumeDialogueRef>((_, ref) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const resumeid = v7()
 
+  const router = useRouter()
   useImperativeHandle(ref, () => ({
     open: () => setOpen(true)
   }))
@@ -41,14 +43,14 @@ export const ResumeDialogue = forwardRef<ResumeDialogueRef>((_, ref) => {
     try {
       setIsAnalyzing(true)
       const formData = new FormData()
-      const id = v7()
-      formData.append('recordId', id)
+      formData.append('recordId', resumeid)
       formData.append('resumeFile', selectedFile)
       const result = await axios.post('/api/ai-resume-agent', formData)
       console.log(result.data)
     } catch (e) {
       console.error('Resume analysis failed', e)
     } finally {
+      router.push('/ai-tools/ai-resume-analyzer/' + resumeid)
       setIsAnalyzing(false)
       setSelectedFile(null)
       setOpen(false)

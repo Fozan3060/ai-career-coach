@@ -35,37 +35,74 @@ export const AiResumeAnalyzerFunction = inngest.createFunction(
   { id: 'AiResumeAnalyzerAgent' },
   { event: 'AiResumeAnalyzerAgent' },
   async ({ event, step }) => {
-    const { recordId, base64ResumeFile, pdfText,aiAgentType,userEmail} = event.data
+    const { recordId, base64ResumeFile, pdfText, aiAgentType, userEmail } =
+      event.data
 
+    // ✅ STEP 1: UPLOAD RESUME TO CLOUDINARY
     const uploadedFile = await step.run('uploadResumePDF', async () => {
-      return await cloudinary.uploader.upload(
-        `data:application/pdf;base64,${base64ResumeFile}`,
-        {
-          resource_type: 'auto',
-          public_id: `resume_${Date.now()}`
-        }
-      )
+      try {
+        // Sanitize email for public_id (remove @ and .)
+        const safeEmail = userEmail.replace(/[@.]/g, '-')
+        const publicId = `resumes/${safeEmail}/${recordId}.pdf`
+
+        const result = await cloudinary.uploader.upload(
+          `data:application/pdf;base64,${base64ResumeFile}`,
+          {
+            resource_type: 'raw',
+            public_id: publicId,
+            access_mode: 'public'
+          }
+        )
+
+        console.log('✅ File uploaded to Cloudinary:', result.secure_url)
+        return result
+      } catch (error) {
+        console.error('❌ Cloudinary upload failed:', error)
+        throw error
+      }
     })
 
+    const resumeUrl = uploadedFile.secure_url
+
+    // ✅ STEP 2: RUN AI ANALYSIS
     const cleanedText = pdfText?.trim().slice(0, 8000)
-
     const AiResumeReport = await AiResumeAnalyzerAgent.run(cleanedText)
-    const rawcontent = AiResumeReport.output?.[0]?.content || ''
-    const rawcontentjson = rawcontent.replace('```json', '').replace('```', '')
-    const parsejson = JSON.parse(rawcontentjson)
-    const saveToDb = await step.run('SaveToDb', async () => {
-      const result = await db.insert(HistoryTable).values({
-        recordId: recordId,
-        content: parsejson,
-        aiAgentType: aiAgentType,
-        userEmail: userEmail
-      })
 
-      console.log(result)
+    // ✅ STEP 3: PARSE THE AI RESPONSE
+    let parsedJson
+    try {
+      const rawContent = AiResumeReport.output?.[0]?.content || '{}'
+      const jsonString = rawContent
+        .replace(/```json\s?/, '')
+        .replace(/```$/, '')
+      parsedJson = JSON.parse(jsonString)
+    } catch (error) {
+      console.error('❌ Failed to parse JSON from AI response:', error)
+      throw new Error('Invalid JSON response from AI Agent.')
+    }
+
+    // ✅ STEP 4: SAVE RESULTS TO THE DATABASE
+    await step.run('SaveToDb', async () => {
+      try {
+        const result = await db.insert(HistoryTable).values({
+          recordId,
+          content: parsedJson,
+          aiAgentType,
+          userEmail,
+          metaData: resumeUrl
+        })
+        console.log('✅ Analysis saved to database.')
+        return result
+      } catch (error) {
+        console.error('❌ Database insert failed:', error)
+        throw error
+      }
     })
+
+    // ✅ STEP 5: RETURN FINAL OUTPUT
     return {
-      uploadedUrl: uploadedFile.secure_url,
-      report: parsejson
+      uploadedUrl: resumeUrl,
+      report: parsedJson
     }
   }
 )
