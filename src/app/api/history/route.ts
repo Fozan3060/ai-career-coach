@@ -5,13 +5,14 @@ import { HistoryTable } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 
 export async function POST (req: any) {
-  const { content, recordId } = await req.json()
+  const { content, recordId, aiAgentType } = await req.json()
   const user = await currentUser()
   try {
     const result = await db.insert(HistoryTable).values({
       recordId: recordId,
       content: content,
-      userEmail: user?.primaryEmailAddress?.emailAddress
+      userEmail: user?.primaryEmailAddress?.emailAddress,
+      aiAgentType: aiAgentType
     })
 
     return NextResponse.json(result)
@@ -37,7 +38,7 @@ export async function PUT (req: any) {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET (req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const recordId = searchParams.get('recordId')
 
@@ -54,4 +55,3 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: e })
   }
 }
-

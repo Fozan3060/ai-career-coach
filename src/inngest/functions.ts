@@ -1,5 +1,8 @@
-import { createAgent, gemini } from "@inngest/agent-kit";
-import { inngest } from "./client";
+import { createAgent, gemini } from '@inngest/agent-kit'
+import { inngest } from './client'
+import { v2 as cloudinary } from 'cloudinary'
+import { db } from '@/db/drizzle'
+import { HistoryTable } from '@/db/schema'
 
 export const AiCareerChatAgent = createAgent({
   name: 'AiCareerChatAgent',
@@ -21,3 +24,249 @@ export const AiCareerChatFunction = inngest.createFunction(
     return result
   }
 )
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET
+})
+
+export const AiResumeAnalyzerFunction = inngest.createFunction(
+  { id: 'AiResumeAnalyzerAgent' },
+  { event: 'AiResumeAnalyzerAgent' },
+  async ({ event, step }) => {
+    const { recordId, base64ResumeFile, pdfText, aiAgentType, userEmail } =
+      event.data
+
+    // ✅ STEP 1: UPLOAD RESUME TO CLOUDINARY
+    const uploadedFile = await step.run('uploadResumePDF', async () => {
+      try {
+        // Sanitize email for public_id (remove @ and .)
+        const safeEmail = userEmail.replace(/[@.]/g, '-')
+        const publicId = `resumes/${safeEmail}/${recordId}.pdf`
+
+        const result = await cloudinary.uploader.upload(
+          `data:application/pdf;base64,${base64ResumeFile}`,
+          {
+            resource_type: 'raw',
+            public_id: publicId,
+            access_mode: 'public'
+          }
+        )
+
+        console.log('✅ File uploaded to Cloudinary:', result.secure_url)
+        return result
+      } catch (error) {
+        console.error('❌ Cloudinary upload failed:', error)
+        throw error
+      }
+    })
+
+    const resumeUrl = uploadedFile.secure_url
+
+    // ✅ STEP 2: RUN AI ANALYSIS
+    const cleanedText = pdfText?.trim().slice(0, 8000)
+    const AiResumeReport = await AiResumeAnalyzerAgent.run(cleanedText)
+
+    // ✅ STEP 3: PARSE THE AI RESPONSE
+    let parsedJson
+    try {
+      const rawContent = AiResumeReport.output?.[0]?.content || '{}'
+      const jsonString = rawContent
+        .replace(/```json\s?/, '')
+        .replace(/```$/, '')
+      parsedJson = JSON.parse(jsonString)
+    } catch (error) {
+      console.error('❌ Failed to parse JSON from AI response:', error)
+      throw new Error('Invalid JSON response from AI Agent.')
+    }
+
+    // ✅ STEP 4: SAVE RESULTS TO THE DATABASE
+    await step.run('SaveToDb', async () => {
+      try {
+        const result = await db.insert(HistoryTable).values({
+          recordId,
+          content: parsedJson,
+          aiAgentType,
+          userEmail,
+          metaData: resumeUrl
+        })
+        console.log('✅ Analysis saved to database.')
+        return result
+      } catch (error) {
+        console.error('❌ Database insert failed:', error)
+        throw error
+      }
+    })
+
+    // ✅ STEP 5: RETURN FINAL OUTPUT
+    return {
+      uploadedUrl: resumeUrl,
+      report: parsedJson
+    }
+  }
+)
+
+export const AiResumeAnalyzerAgent = createAgent({
+  name: 'AiResumeAnalyzerAgent',
+  description: 'Analyzes resumes and returns structured feedback',
+  system: `You are an advanced AI Resume Analyzer Agent.
+
+Your task is to evaluate a candidate's resume and return a detailed analysis in the following structured JSON schema format.
+
+The schema must match the layout and structure of a visual UI that includes overall score, section scores, summary feedback, improvement tips, strengths, and weaknesses.
+
+
+
+📤 INPUT: I will provide a plain text resume.
+
+🎯 GOAL: Output a JSON report as per the schema below. The report should reflect:
+
+
+
+overall_score (0–100)
+
+
+
+overall_feedback (short message e.g., "Excellent", "Needs improvement")
+
+
+
+summary_comment (1–2 sentence evaluation summary)
+
+
+
+Section scores for:
+
+
+
+Contact Info
+
+
+
+Experience
+
+
+
+Education
+
+
+
+Skills
+
+
+
+Each section should include:
+
+
+
+score (as percentage)
+
+
+
+Optional comment about that section
+
+
+
+Tips for improvement (3–5 tips)
+
+
+
+What’s Good (1–3 strengths)
+
+
+
+Needs Improvement (1–3 weaknesses)
+
+
+
+🧠 Output JSON Schema:
+
+json
+
+Copy
+
+Edit
+
+{
+
+  "overall_score": 85,
+
+  "overall_feedback": "Excellent!",
+
+  "summary_comment": "Your resume is strong, but there are areas to refine.",
+
+  "sections": {
+
+    "contact_info": {
+
+      "score": 95,
+
+      "comment": "Perfectly structured and complete."
+
+    },
+
+    "experience": {
+
+      "score": 88,
+
+      "comment": "Strong bullet points and impact."
+
+    },
+
+    "education": {
+
+      "score": 70,
+
+      "comment": "Consider adding relevant coursework."
+
+    },
+
+    "skills": {
+
+      "score": 60,
+
+      "comment": "Expand on specific skill proficiencies."
+
+    }
+
+  },
+
+  "tips_for_improvement": [
+
+    "Add more numbers and metrics to your experience section to show impact.",
+
+    "Integrate more industry-specific keywords relevant to your target roles.",
+
+    "Start bullet points with strong action verbs to make your achievements stand out."
+
+  ],
+
+  "whats_good": [
+
+    "Clean and professional formatting.",
+
+    "Clear and concise contact information.",
+
+    "Relevant work experience."
+
+  ],
+
+  "needs_improvement": [
+
+    "Skills section lacks detail.",
+
+    "Some experience bullet points could be stronger.",
+
+    "Missing a professional summary/objective."
+
+  ]
+
+}
+
+`,
+  model: gemini({
+    model: 'gemini-2.0-flash',
+    apiKey: process.env.GEMINI_API_KEY
+  })
+})
