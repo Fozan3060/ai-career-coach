@@ -8,11 +8,13 @@ import { AIToolCard } from '../compound/AIToolsCard'
 import axios from 'axios'
 import { ResumeDialogue, ResumeDialogueRef } from '../resume/ResumeDialogue'
 import { useUser } from '@clerk/nextjs'
+import { RoadmapDialogue, RoadmapDialogueRef } from '../roadmap/RoadmapDialogue'
 
 const AItoolSection = () => {
   const router = useRouter()
   const { isSignedIn, isLoaded } = useUser()
   const resumeModalRef = useRef<ResumeDialogueRef>(null)
+  const roadmapModalRef = useRef<RoadmapDialogueRef>(null)
 
   const onClickChatAgent = async () => {
     if (!isLoaded) return
@@ -27,6 +29,14 @@ const AItoolSection = () => {
       aiAgentType: 'AIChatBot'
     })
     router.push('/ai-tools/ai-chat/' + chatid)
+  }
+  const onClickRoadmapAgent = async () => {
+    if (!isLoaded) return
+
+    if (!isSignedIn) {
+      return router.push('/dashboard')
+    }
+    roadmapModalRef.current?.open()
   }
   const onClickResumeAgent = async () => {
     if (!isLoaded) return
@@ -67,7 +77,7 @@ const AItoolSection = () => {
       icon: <Map className='w-8 h-8 text-white' />,
       color: 'green',
       onClickLabel: 'Generate Now',
-      onClick: () => {}
+      onClick: onClickRoadmapAgent
     },
     {
       title: 'Cover Letter Generator',
@@ -96,6 +106,7 @@ const AItoolSection = () => {
       </div>
 
       <ResumeDialogue ref={resumeModalRef} />
+      <RoadmapDialogue ref={roadmapModalRef} />
     </>
   )
 }
