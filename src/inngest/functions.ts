@@ -4,6 +4,8 @@ import { v2 as cloudinary } from 'cloudinary'
 import { db } from '@/db/drizzle'
 import { HistoryTable } from '@/db/schema'
 
+
+
 export const AiCareerChatAgent = createAgent({
   name: 'AiCareerChatAgent',
   description: 'An Ai agent the answers career related questions',
@@ -71,7 +73,11 @@ export const AiResumeAnalyzerFunction = inngest.createFunction(
     // ✅ STEP 3: PARSE THE AI RESPONSE
     let parsedJson
     try {
-      const rawContent = AiResumeReport.output?.[0]?.content || '{}'
+      const firstMessage = AiResumeReport.output?.[0]
+      const rawContent =
+        firstMessage && 'content' in firstMessage
+          ? (firstMessage as { content: string }).content
+          : '{}'
       const jsonString = rawContent
         .replace(/```json\s?/, '')
         .replace(/```$/, '')
@@ -323,10 +329,14 @@ export const AIRoadmapAgentFunction = inngest.createFunction(
   async ({ event, step }) => {
     const { roadmapId, userInput, userEmail } = event.data
 
-    const roadmapResult = await AIRoadmapGeneratorAgent.run(userInput)
+    const roadmapResult = await AIRoadmapGeneratorAgent.run(userInput) 
 
     try {
-      const rawContent = roadmapResult.output?.[0]?.content || '{}'
+      const firstMessage = roadmapResult.output?.[0]
+      const rawContent =
+        firstMessage && 'content' in firstMessage
+          ? (firstMessage as { content: string }).content
+          : '{}'
       const cleanedJson = rawContent
         .replace(/```json\s?/, '')
         .replace(/```$/, '')
@@ -337,7 +347,7 @@ export const AIRoadmapAgentFunction = inngest.createFunction(
           const result = await db.insert(HistoryTable).values({
             recordId: roadmapId,
             content: parsed,
-            aiAgentType: 'AiRoadmap',
+            aiAgentType: 'ai-roadmap-generator',
             userEmail,
             metaData: userInput
           })

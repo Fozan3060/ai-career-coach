@@ -41,7 +41,8 @@ export async function PUT (req: any) {
 export async function GET (req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const recordId = searchParams.get('recordId')
-
+  const user = await currentUser()
+  const email = user?.primaryEmailAddress?.emailAddress
   try {
     if (recordId) {
       const result = await db
@@ -49,6 +50,16 @@ export async function GET (req: NextRequest) {
         .from(HistoryTable)
         .where(eq(HistoryTable.recordId, recordId))
       return NextResponse.json(result[0] || {})
+    } else {
+      if (email) {
+        const result = await db
+          .select()
+          .from(HistoryTable)
+          .where(
+            eq(HistoryTable.userEmail, user.primaryEmailAddress.emailAddress)
+          )
+        return NextResponse.json(result || {})
+      }
     }
     return NextResponse.json({})
   } catch (e) {

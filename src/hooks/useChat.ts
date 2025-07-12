@@ -165,7 +165,7 @@ export function useChat () {
         const chatFromDb: Chat = {
           id: record.content.id,
           title: record.content.title,
-          messages: record.content.messages.map((msg: Message) => ({
+          messages: record.content.messages?.map((msg: Message) => ({
             ...msg,
             timestamp: new Date(msg.timestamp)
           })),

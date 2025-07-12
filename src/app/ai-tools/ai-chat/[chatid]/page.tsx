@@ -23,7 +23,7 @@ const AIChat = () => {
   const toggleHeader = () => {
     setIsHeaderCollapsed(!isHeaderCollapsed)
   }
-
+console.log(currentChat)
   const handleSendMessage = async (content: string) => {
     await sendMessage(content)
   }
@@ -59,7 +59,7 @@ const AIChat = () => {
 
       {/* Chat Area */}
       <div className='flex-1 flex flex-col overflow-hidden min-h-0'>
-        {!currentChat || currentChat.messages.length === 0 ? (
+        {!currentChat || currentChat.messages === undefined ? (
           <WelcomeScreen onSuggestionClick={handleSuggestionClick} />
         ) : (
           <ChatMessages messages={currentChat.messages} isLoading={isLoading} />
