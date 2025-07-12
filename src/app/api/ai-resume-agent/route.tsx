@@ -4,6 +4,15 @@ import { inngest } from '@/inngest/client'
 import axios from 'axios'
 import { currentUser } from '@clerk/nextjs/server'
 
+type content = {
+  status: string
+  output: object
+}
+
+type runstatusType = {
+  data: content[]
+}
+
 export async function POST (req: NextRequest) {
   const FormData = await req.formData()
   const resumeFile: any = FormData.get('resumeFile')
@@ -33,7 +42,7 @@ export async function POST (req: NextRequest) {
   let runStatus
 
   while (true) {
-    runStatus = await getRuns(runId)
+    runStatus = (await getRuns(runId)) as runstatusType
 
     // ✅ Fix type error here
     const status = runStatus?.data?.[0]?.status

@@ -26,7 +26,7 @@ const AItoolSection = () => {
     await axios.post('/api/history', {
       recordId: chatid,
       content: ['Dummy'],
-      aiAgentType: 'AIChatBot'
+      aiAgentType: 'ai-chat'
     })
     router.push('/ai-tools/ai-chat/' + chatid)
   }
