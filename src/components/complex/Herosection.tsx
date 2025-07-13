@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button"
 import { Sparkles, Zap, TrendingUp, Target } from "lucide-react"
+import { StatsSection } from "../marketing/StatsSection";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden h-screen py-24">
+    <section className="relative overflow-hidden h-screen py-24 overflow-scroll">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-gray-900"></div>
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -35,6 +36,7 @@ export function HeroSection() {
           <Feature icon={<Sparkles className="w-4 h-4 text-purple-400" />} text="AI-Powered Insights" />
         </div>
       </div>
+      <StatsSection/>
     </section>
   )
 }
