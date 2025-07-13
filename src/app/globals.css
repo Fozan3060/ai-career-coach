@@ -130,6 +130,7 @@
 
 .pricing_table .cl-button {
   @apply bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 hover:scale-105 shadow-lg;
+  border: none;
 }
 
 
@@ -284,4 +285,29 @@
 .scrollbar-hover::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #7c3aed, #2563eb);
   box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+
+.cl-internal-7o4hl5 {
+  color: white;
+}
+.cl-switchThumb{
+  background-color: rgb(128, 74, 255);
+}
+.cl-switchIndicator{
+  background-color: #6827ff;
+}
+/* .cl-navbar ,cl-cardBox{
+  background: rgb(17, 17, 17) !important;
+} */
+.cl-navbarButtons button{
+  color: white;
+}
+.cl-navbar h1 {
+  color: white;
+}
+/* .cl-scrollBox {
+  background-color: #0f0f0f !important;
+} */
+.cl-scrollbox h1 {
+  color:white
 }

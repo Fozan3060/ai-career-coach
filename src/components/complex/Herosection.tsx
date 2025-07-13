@@ -3,7 +3,7 @@ import { Sparkles, Zap, TrendingUp, Target } from "lucide-react"
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden h-screen py-24">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-gray-900"></div>
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>

@@ -4,8 +4,18 @@ import { UserProfile } from '@clerk/nextjs'
 
 export default function ProfilePage () {
   return (
-    <div className='flex justify-center'>
-      <UserProfile />
+    <div className='flex mt-20 justify-center'>
+      <UserProfile appearance={
+        
+        {elements:{profileSectionPrimaryButton:"!text-white",
+          scrollBox:"bg-gradient-to-b from-gray-900 to-gray-950",
+          navbar:"!bg-gradient-to-b from-gray-800 to-gray-950"
+        },
+          variables:{
+            colorBackground:"transparent",
+        colorText:"white",
+      }}}
+     />
     </div>
   )
 }

@@ -16,7 +16,7 @@ const Mainbar = ({ children }: MainbarProps) => {
           <div className="absolute top-20 right-20 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-20 left-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
-        <div className="relative z-10 pt-16">{children}</div>
+        <div className="relative z-10 ">{children}</div>
       </div>
     </SidebarInset>
   )

@@ -145,7 +145,9 @@ export function AppSidebar () {
                         )}
                       </a>
                     </SidebarMenuButton>
+           
                   </SidebarMenuItem>
+                  
                 )
               })}
             </SidebarMenu>
@@ -163,11 +165,17 @@ export function AppSidebar () {
             >
               <div className='flex items-center gap-3 w-full'>
                 <div className='relative'>
-                  <UserButton
+                          <UserButton
                     appearance={{
                       elements: {
-                        avatarBox:
-                          'w-10 h-10 rounded-xl border-2 border-purple-500/30 group-hover:border-purple-500/50 transition-all duration-300'
+                       
+                          userButtonPopoverMain:"!bg-gradient-to-b from-gray-800 to-gray-900",
+                          userButtonPopoverFooter:"!bg-gradient-to-r from-slate-700 to-slate-800",
+                          userButtonPopoverActionButton:"!text-white"
+                      },
+                      variables:{
+                        colorText:"white",
+                        colorTextSecondary:"white"
                       }
                     }}
                   />
