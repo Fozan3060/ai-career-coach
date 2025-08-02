@@ -17,7 +17,8 @@ import {
   FileText,
   Map,
   Calendar,
-  ExternalLink
+  ExternalLink,
+  PenTool
 } from 'lucide-react'
 
 const HistoryPage = () => {
@@ -34,6 +35,8 @@ const HistoryPage = () => {
         return <FileText className='w-6 h-6 text-green-400' />
       case 'ai-chat':
         return <MessageCircle className='w-6 h-6 text-purple-400' />
+      case 'ai-cover-letter-generator':
+        return <PenTool className='w-6 h-6 text-orange-400' />
       default:
         return <FileText className='w-6 h-6 text-gray-400' />
     }
@@ -55,6 +58,10 @@ const HistoryPage = () => {
         return 'AI Resume Analyzer'
       case 'ai-chat':
         return content?.title
+      case 'ai-cover-letter-generator':
+        return content?.formData?.jobTitle && content?.formData?.companyName
+          ? `Cover Letter for ${content.formData.jobTitle} at ${content.formData.companyName}`
+          : 'AI Cover Letter Generator'
       default:
         return 'AI Tool Session'
     }
@@ -71,28 +78,18 @@ const HistoryPage = () => {
         return 'Resume analysis and feedback'
       case 'ai-chat':
         return `Chat session with ${content?.messages?.length || 0} messages`
+      case 'ai-cover-letter-generator':
+        return content?.formData?.companyName
+          ? `Personalized cover letter for ${content.formData.companyName}`
+          : 'AI-generated cover letter'
       default:
         return 'AI tool session'
     }
   }
 
   const goToHistory = (record: HistoryRecord) => {
-    let path = ''
-    switch (record.aiAgentType) {
-      case 'ai-roadmap-generator':
-        path = `/ai-tools/ai-roadmap/${record.recordId}`
-        break
-      case 'ai-resume-analyzer':
-        path = `/ai-tools/ai-resume/${record.recordId}`
-        break
-      case 'ai-chat':
-        path = `/ai-tools/${record.recordId}`
-        break
-      default:
-        path = `/ai-tools`
-    }
-        router.push(`/ai-tools/${record.aiAgentType}/${record.recordId}`)
 
+    router.push(`/ai-tools/${record.aiAgentType}/${record.recordId}`)
   }
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
