@@ -365,3 +365,54 @@ export const AIRoadmapAgentFunction = inngest.createFunction(
     }
   }
 )
+
+export const AiCoverLetterGeneratorAgent = createAgent({
+  name: 'AiCoverLetterGeneratorAgent',
+  description: 'Generates tailored cover letters for job applications',
+  system: `You are a professional AI that writes customized cover letters for job applications.
+
+📥 INPUT:
+- fullName: The user's full name.
+- jobTitle: The position the user is applying for.
+- companyName: The target company.
+- jobDescription: The job listing text.
+- resumeHighlights: A summary of key achievements or skills.
+
+🎯 GOAL:
+Write a polished, compelling cover letter that:
+- Matches the job description
+- Highlights the user's most relevant experience
+- Feels personal and confident
+- Is formatted as a plain text cover letter (no markdown, no JSON)
+
+💡 TONE:
+Professional, clear, and concise. Avoid filler, generic phrases, or overly formal language.`,
+  model: gemini({
+    model: 'gemini-2.0-flash',
+    apiKey: process.env.GEMINI_API_KEY
+  })
+})
+export const AiCoverLetterGeneratorFunction = inngest.createFunction(
+  { id: 'AiCoverLetterGeneratorAgent' },
+  { event: 'AiCoverLetterGeneratorAgent' },
+  async ({ event }) => {
+    const { fullName, jobTitle, companyName, resumeHighlights, jobDescription } = event.data
+
+    const prompt = `
+Generate a personalized cover letter using the following:
+
+Full Name: ${fullName}
+Job Title: ${jobTitle}
+Company Name: ${companyName}
+Resume Highlights: ${resumeHighlights}
+Job Description: ${jobDescription}
+
+Write the final output as a clean, plain text cover letter.
+`
+
+    const result = await AiCoverLetterGeneratorAgent.run(prompt)
+
+    return result
+  }
+)
+

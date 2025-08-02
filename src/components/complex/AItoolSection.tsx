@@ -47,6 +47,21 @@ const AItoolSection = () => {
     resumeModalRef.current?.open()
   }
 
+  const onClickCoverLetterGenerator = async () => {
+      if (!isLoaded) return
+
+    if (!isSignedIn) {
+      return router.push('/dashboard')
+    }
+     const letterid = v7()
+    await axios.post('/api/history', {
+      recordId: letterid,
+      content: ['Dummy'],
+      aiAgentType: 'ai-cover-letter-generator'
+    })
+    router.push('/ai-tools/ai-cover-letter-generator/' + letterid)
+  }
+
   const tools: {
     title: string
     description: string
@@ -85,7 +100,7 @@ const AItoolSection = () => {
       icon: <PenTool className='w-8 h-8 text-white' />,
       color: 'orange',
       onClickLabel: 'Create Now',
-      onClick: () => {}
+      onClick: onClickCoverLetterGenerator
     }
   ]
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Users, MessageCircle, FileText, Map } from "lucide-react"
+import { Users, MessageCircle, FileText, Map, PenTool } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface StatsData {
@@ -10,6 +10,7 @@ interface StatsData {
   chatAgentCount: number
   resumeAgentCount: number
   roadmapAgentCount: number
+  coverLetterAgentCount: number
 }
 
 export function StatsSection() {
@@ -66,12 +67,18 @@ export function StatsSection() {
       icon: <Map className="w-6 h-6 text-orange-400" />,
       description: "Personalized career paths created",
     },
+    {
+      title: "Cover Letters Created",
+      value: stats?.coverLetterAgentCount,
+      icon: <PenTool className="w-6 h-6 text-pink-400" />,
+      description: "Professional cover letters generated",
+    },
   ]
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto py-12">
-        {Array.from({ length: 4 }).map((_, i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto py-12">
+        {Array.from({ length: 5 }).map((_, i) => (
           <Card key={i} className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm animate-pulse">
             <CardHeader className="pb-3">
               <div className="w-10 h-10 bg-gray-700 rounded-full mb-2"></div>
@@ -107,7 +114,7 @@ export function StatsSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
           {statItems.map((item, index) => (
             <Card
               key={index}
@@ -132,13 +139,13 @@ export function StatsSection() {
                 >
                   {item.icon}
                 </div>
-                <CardTitle className="text-3xl font-bold text-white group-hover:text-gray-100 transition-colors duration-300">
+                <CardTitle className="text-2xl xl:text-3xl font-bold text-white group-hover:text-gray-100 transition-colors duration-300">
                   {item.value?.toLocaleString() || "N/A"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-3">
-                <p className="text-gray-300 text-lg font-medium">{item.title}</p>
-                <p className="text-gray-400 text-sm mt-1">{item.description}</p>
+                <p className="text-gray-300 text-base xl:text-lg font-medium">{item.title}</p>
+                <p className="text-gray-400 text-xs xl:text-sm mt-1">{item.description}</p>
               </CardContent>
             </Card>
           ))}
