@@ -39,7 +39,7 @@ export default function ClientLayout ({
                   <AppSidebar />
                   <Mainbar>
                     <Header />
-                    <main className=''>{children}</main>
+                    <main >{children}</main>
                   </Mainbar>
                 </SidebarProvider>
               </div>

@@ -77,7 +77,7 @@ const BillingPage = () => {
                    pricingTableCardBody:"bg-gradient-to-b from-slate-800 to-slate-900",           
                    pricingTableCardFooter:"bg-gradient-to-r from-slate-700 to-slate-800"    ,
                    pricingTableCardFooterNotice:"bg-gradient-to-r from-slate-700 to-slate-800"   ,
-                
+                    badge:"!bg-[#8b5cf6] !text-white"
                   },
                   variables: {
                     colorPrimary: '#8b5cf6', // Purple

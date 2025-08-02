@@ -9,7 +9,7 @@ interface MainbarProps {
 
 const Mainbar = ({ children }: MainbarProps) => {
   return (
-    <SidebarInset className="bg-gray-950 z-0 min-h-screen">
+    <SidebarInset className="bg-gray-950 mt-16 z-0 min-h-screen">
       <div className="relative min-h-screen">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/5 via-blue-900/5 to-gray-900 pointer-events-none"></div>
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

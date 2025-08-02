@@ -9,7 +9,9 @@ export default function ProfilePage () {
         
         {elements:{profileSectionPrimaryButton:"!text-white",
           scrollBox:"bg-gradient-to-b from-gray-900 to-gray-950",
-          navbar:"!bg-gradient-to-b from-gray-800 to-gray-950"
+          navbar:"!bg-gradient-to-b from-gray-800 to-gray-950",
+          badge:"!text-white ",
+          tabButton:"!text-white",
         },
           variables:{
             colorBackground:"transparent",
