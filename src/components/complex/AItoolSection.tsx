@@ -90,7 +90,17 @@ const AItoolSection = () => {
   ]
 
   return (
-    <>
+    <section className='py-20 bg-gray-900/50 mt-24'>
+      <div className='container mx-auto '>
+        <div className='text-center mb-16'>
+          <h2 className='text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent'>
+            Available AI Tools
+          </h2>
+          <p className='text-xl text-gray-400 max-w-2xl mx-auto'>
+            Start Building and Shape Your Career with these exclusive AI Tools
+          </p>
+        </div>
+      </div>
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl sm:mx-auto mx-5 '>
         {tools.map(tool => (
           <AIToolCard
@@ -107,7 +117,7 @@ const AItoolSection = () => {
 
       <ResumeDialogue ref={resumeModalRef} />
       <RoadmapDialogue ref={roadmapModalRef} />
-    </>
+    </section>
   )
 }
 

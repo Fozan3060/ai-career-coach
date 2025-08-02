@@ -70,7 +70,30 @@ const BillingPage = () => {
             <PricingTableSkeleton />
           ) : (
             <div className='pricing-table-container'>
-              <PricingTable />
+              <PricingTable
+                appearance={{
+                  elements: {
+                   pricingTableCardHeader:"bg-gradient-to-r from-slate-800 to-slate-700",
+                   pricingTableCardBody:"bg-gradient-to-b from-slate-800 to-slate-900",           
+                   pricingTableCardFooter:"bg-gradient-to-r from-slate-700 to-slate-800"    ,
+                   pricingTableCardFooterNotice:"bg-gradient-to-r from-slate-700 to-slate-800"   ,
+                    badge:"!bg-[#8b5cf6] !text-white"
+                  },
+                  variables: {
+                    colorPrimary: '#8b5cf6', // Purple
+                    colorBackground: 'transparent',
+                    colorText: '#f8fafc', // Lighter text
+                    colorTextSecondary: '#e2e8f0',
+                    colorSuccess: '#10b981', // Green
+                    colorDanger: '#ef4444', // Red
+                    colorWarning: '#f59e0b', // Orange
+                    borderRadius: '12px',
+                    fontFamily: 'inherit',
+                    fontSize: '14px',
+                  },
+                 
+                }}
+              />
             </div>
           )}
         </div>

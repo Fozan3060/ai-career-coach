@@ -7,6 +7,7 @@ import { ChatInput } from '@/components/chat/ChatInput'
 import { useChat } from '@/hooks/useChat'
 import { ChatMessages } from '@/components/chat/ChatMessage'
 import { useParams } from 'next/navigation'
+import { ChatPageSkeleton } from '@/components/chat/ChatPageSkeleton'
 const AIChat = () => {
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false)
   const {
@@ -17,13 +18,14 @@ const AIChat = () => {
     sendMessage,
     clearError,
     updateMessageList,
-    getMessageList
+    getMessageList,
+    isLoadingAllChats
   } = useChat()
   const { chatid } = useParams()
   const toggleHeader = () => {
     setIsHeaderCollapsed(!isHeaderCollapsed)
   }
-console.log(currentChat)
+  console.log(currentChat)
   const handleSendMessage = async (content: string) => {
     await sendMessage(content)
   }
@@ -44,9 +46,11 @@ console.log(currentChat)
     sendMessage(suggestion)
   }
 
-  console.log(chatid)
+  if (isLoadingAllChats) {
+    return <ChatPageSkeleton />
+  }
   return (
-    <div className='flex flex-col h-[calc(100vh-4rem)] bg-slate-950'>
+    <div className='flex flex-col h-screen pt-24 bg-slate-950'>
       {/* Collapsible Header */}
       <CollapsibleHeader
         isCollapsed={isHeaderCollapsed}

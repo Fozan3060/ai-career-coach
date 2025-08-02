@@ -20,7 +20,7 @@ export function useChat () {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
+  const [isLoadingAllChats, setisLoadingAllChats] = useState(true)
   const { chatid } = useParams() as { chatid: string }
   const currentChat = chats.find(chat => chat.id === currentChatId) || null
 
@@ -37,6 +37,7 @@ export function useChat () {
     let targetChatId = currentChatId
 
     if (!currentChatId) {
+      setisLoadingAllChats(false)
       const newChatId = chatid
       const newChat: Chat = {
         id: newChatId,
@@ -108,6 +109,7 @@ export function useChat () {
         })
         return newChats
       })
+      setisLoadingAllChats(false)
 
       // Save to database after updating state
     } catch (error) {
@@ -140,6 +142,7 @@ export function useChat () {
       })
     } finally {
       setIsLoading(false)
+      setisLoadingAllChats(false)
     }
   }
 
@@ -174,6 +177,7 @@ export function useChat () {
 
         setChats([chatFromDb])
         setCurrentChatId(chatFromDb.id)
+        setisLoadingAllChats(false)
       }
     } catch (err) {
       console.error('Failed to fetch chat:', err)
@@ -191,6 +195,7 @@ export function useChat () {
     sendMessage,
     clearError,
     updateMessageList,
-    getMessageList
+    getMessageList,
+    isLoadingAllChats
   }
 }
