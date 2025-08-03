@@ -2,19 +2,46 @@
 
 import { FileText, Map, MessageCircle, PenTool } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { v7 } from 'uuid'
 import { AIToolCard } from '../compound/AIToolsCard'
 import axios from 'axios'
 import { ResumeDialogue, ResumeDialogueRef } from '../resume/ResumeDialogue'
 import { useUser } from '@clerk/nextjs'
 import { RoadmapDialogue, RoadmapDialogueRef } from '../roadmap/RoadmapDialogue'
+import { LimitModal } from '@/components/ui/limit-modal'
 
 const AItoolSection = () => {
   const router = useRouter()
-  const { isSignedIn, isLoaded } = useUser()
+  const { isSignedIn, isLoaded, user } = useUser()
   const resumeModalRef = useRef<ResumeDialogueRef>(null)
   const roadmapModalRef = useRef<RoadmapDialogueRef>(null)
+  const [limitModalOpen, setLimitModalOpen] = useState(false)
+  const [limitFeatureName, setLimitFeatureName] = useState('')
+
+  const checkUsageAndProceed = async (agentType: string, featureName: string, onSuccess: () => void) => {
+    if (!user?.primaryEmailAddress?.emailAddress) return
+
+    try {
+      const response = await axios.post<{ canUse: boolean }>('/api/check-usage', {
+        userEmail: user.primaryEmailAddress.emailAddress,
+        agentType
+      })
+      
+      console.log(`Plan check for ${featureName}:`, response.data)
+      
+      if (response.data.canUse) {
+        onSuccess()
+      } else {
+        setLimitFeatureName(featureName)
+        setLimitModalOpen(true)
+      }
+    } catch (error) {
+      console.error('Error checking usage:', error)
+      // If error, allow usage as fallback
+      onSuccess()
+    }
+  }
 
   const onClickChatAgent = async () => {
     if (!isLoaded) return
@@ -30,36 +57,48 @@ const AItoolSection = () => {
     })
     router.push('/ai-tools/ai-chat/' + chatid)
   }
+
   const onClickRoadmapAgent = async () => {
     if (!isLoaded) return
 
     if (!isSignedIn) {
       return router.push('/dashboard')
     }
-    roadmapModalRef.current?.open()
+
+    await checkUsageAndProceed('roadmap-generator', 'Roadmap Generator', () => {
+      roadmapModalRef.current?.open()
+    })
   }
+
   const onClickResumeAgent = async () => {
     if (!isLoaded) return
 
     if (!isSignedIn) {
       return router.push('/dashboard')
     }
-    resumeModalRef.current?.open()
+
+    await checkUsageAndProceed('resume-analyzer', 'Resume Analyzer', () => {
+      resumeModalRef.current?.open()
+    })
   }
 
   const onClickCoverLetterGenerator = async () => {
-      if (!isLoaded) return
+    if (!isLoaded) return
 
     if (!isSignedIn) {
       return router.push('/dashboard')
     }
-     const letterid = v7()
-    await axios.post('/api/history', {
-      recordId: letterid,
-      content: ['Dummy'],
-      aiAgentType: 'ai-cover-letter-generator'
+
+    await checkUsageAndProceed('cover-letter-generator', 'Cover Letter Generator', () => {
+      const letterid = v7()
+      axios.post('/api/history', {
+        recordId: letterid,
+        content: ['Dummy'],
+        aiAgentType: 'ai-cover-letter-generator'
+      }).then(() => {
+        router.push('/ai-tools/ai-cover-letter-generator/' + letterid)
+      })
     })
-    router.push('/ai-tools/ai-cover-letter-generator/' + letterid)
   }
 
   const tools: {
@@ -132,6 +171,11 @@ const AItoolSection = () => {
 
       <ResumeDialogue ref={resumeModalRef} />
       <RoadmapDialogue ref={roadmapModalRef} />
+      <LimitModal 
+        open={limitModalOpen} 
+        onOpenChange={setLimitModalOpen}
+        featureName={limitFeatureName}
+      />
     </section>
   )
 }

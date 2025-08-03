@@ -1,8 +1,12 @@
-'use client'
+
 
 import { UserProfile } from '@clerk/nextjs'
+import { auth } from '@clerk/nextjs/server'
 
-export default function ProfilePage () {
+export default async function ProfilePage () {
+  const { has } = await auth()
+  const hasPremiumPlan = has({ plan: 'premium' })
+  console.log(hasPremiumPlan,"premium")
   return (
     <div className='flex mt-20 justify-center'>
       <UserProfile appearance={
