@@ -12,13 +12,43 @@ import {
   RoadmapDialogue,
   RoadmapDialogueRef
 } from '@/components/roadmap/RoadmapDialogue'
+import { useUser } from '@clerk/nextjs'
+import { LimitModal } from '@/components/ui/limit-modal'
 
 const AiRoadmapPage = () => {
   const { roadmapId } = useParams()
   const [roadmap, setRoadmap] = useState<RoadmapData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [limitModalOpen, setLimitModalOpen] = useState(false)
   const roadmapModalRef = useRef<RoadmapDialogueRef>(null)
+  const { user } = useUser()
+
+  const checkUsageAndOpenModal = async () => {
+    if (!user?.primaryEmailAddress?.emailAddress) return
+
+    try {
+      const response = await axios.post<{ canUse: boolean }>('/api/check-usage', {
+        userEmail: user.primaryEmailAddress.emailAddress,
+        agentType: 'roadmap-generator'
+      })
+      
+      console.log(`Create another roadmap check:`, response.data)
+      
+      if (response.data.canUse) {
+        // User can create another roadmap
+        roadmapModalRef.current?.open()
+      } else {
+        // Show limit modal
+        setLimitModalOpen(true)
+      }
+    } catch (error) {
+      console.error('Error checking usage:', error)
+      // If error, allow usage as fallback
+      roadmapModalRef.current?.open()
+    }
+  }
+
   const GetRoadmapRecord = async (id: string) => {
     setIsLoading(true)
     setError(null)
@@ -111,7 +141,7 @@ const AiRoadmapPage = () => {
             <Button
               variant='outline'
               className='bg-gray-800/50 border border-gray-700 text-gray-300 hover:text-white hover:bg-gray-700/50 transition-all duration-300'
-              onClick={() => roadmapModalRef.current?.open()} // Placeholder
+              onClick={checkUsageAndOpenModal}
             >
               <RefreshCw className='w-4 h-4 mr-2' /> Create Another Roadmap
             </Button>
@@ -171,7 +201,12 @@ const AiRoadmapPage = () => {
           </div>
         </div>
       </div>
-      <RoadmapDialogue ref={roadmapModalRef} />{' '}
+      <RoadmapDialogue ref={roadmapModalRef} />
+      <LimitModal 
+        open={limitModalOpen} 
+        onOpenChange={setLimitModalOpen}
+        featureName="Roadmap Generator"
+      />
     </>
   )
 }
