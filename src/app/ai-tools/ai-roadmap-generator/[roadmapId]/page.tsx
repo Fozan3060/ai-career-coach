@@ -194,7 +194,7 @@ const AiRoadmapPage = () => {
             <div className='xl:col-span-2'>
               <RoadmapCanvas
                 initialEdges={roadmap.initialEdges}
-                //@ts-ignore
+                //@ts-expect-error - Type mismatch expected for roadmap nodes
                 initialNodes={roadmap.initialNodes}
               />
             </div>

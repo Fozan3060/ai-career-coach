@@ -195,7 +195,7 @@ export default function RoadmapCanvas({ initialNodes, initialEdges }: RoadmapCan
 
         {/* Background pattern */}
         <Background
-        //@ts-ignore
+        //@ts-expect-error - Background variant type mismatch
         variant="dots" gap={20} size={1} color="#4b5563" />
       </ReactFlow>
     </div>

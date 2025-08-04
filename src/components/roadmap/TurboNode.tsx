@@ -4,7 +4,21 @@ import { Handle, Position } from "@xyflow/react"
 import { memo } from "react"
 import { LinkIcon } from "lucide-react"
 
-const TurboNode = ({ data, type }: any) => {
+interface TurboNodeData {
+  title: string
+  icon?: string
+  subline?: string
+  description?: string
+  link?: string
+  [key: string]: unknown
+}
+
+interface TurboNodeProps {
+  data: TurboNodeData
+  type: string
+}
+
+const TurboNode = ({ data, type }: TurboNodeProps) => {
   // Determine node styling based on type
   const getNodeStyling = (nodeType: string) => {
     switch (nodeType) {
@@ -31,10 +45,12 @@ const TurboNode = ({ data, type }: any) => {
       <div className="space-y-3 flex-1">
         <div className="font-semibold text-lg leading-tight">{data.title || "Untitled"}</div>
 
-        <div className="text-sm text-gray-200 leading-relaxed flex-1">{data.description || "No description"}</div>
+        <div className="text-sm text-gray-200 leading-relaxed flex-1">
+          {typeof data.description === 'string' ? data.description : "No description"}
+        </div>
 
         {/* Learn more link if available */}
-        {data.link && (
+        {typeof data.link === 'string' && data.link && (
           <a
             href={data.link}
             target="_blank"

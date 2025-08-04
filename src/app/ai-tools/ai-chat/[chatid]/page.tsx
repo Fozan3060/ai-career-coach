@@ -36,11 +36,13 @@ const AIChat = () => {
       console.log(currentChat.id, 'current chat id ')
       console.log('running useffect')
     }
-  }, [currentChat])
+  }, [currentChat, updateMessageList])
 
   useEffect(() => {
-    chatid && getMessageList()
-  }, [chatid])
+    if (chatid) {
+      getMessageList()
+    }
+  }, [chatid, getMessageList])
 
   const handleSuggestionClick = (suggestion: string) => {
     sendMessage(suggestion)

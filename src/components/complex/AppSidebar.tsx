@@ -72,7 +72,7 @@ const navigationItems = [
 ]
 
 export function AppSidebar () {
-  const { user, isLoaded } = useUser()
+  const { user } = useUser()
   const path = usePathname()
 
   return (

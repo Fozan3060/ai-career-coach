@@ -1,7 +1,15 @@
 import { inngest } from '@/inngest/client'
 import axios from 'axios'
+import { NextRequest } from 'next/server'
 
-export async function POST (req: Request) {
+interface RunStatus {
+  data?: Array<{
+    status?: string
+    output?: Record<string, unknown>
+  }>
+}
+
+export async function POST(req: NextRequest) {
   const { userInput } = await req.json()
 
   const resultIds = await inngest.send({
@@ -11,15 +19,14 @@ export async function POST (req: Request) {
     }
   })
 
-  const runId = await resultIds.ids[0]
+  const runId = resultIds.ids[0]
   console.log(runId)
 
-  let runStatus
+  let runStatus: RunStatus | undefined
 
   while (true) {
     runStatus = await getRuns(runId)
 
-    // ✅ Fix type error here
     const status = runStatus?.data?.[0]?.status
     if (status === 'Completed') break
 
@@ -29,15 +36,14 @@ export async function POST (req: Request) {
 
   const output = runStatus?.data?.[0]?.output
 
-  // ✅ FIX: Send a proper response back
   return new Response(JSON.stringify({ output }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }
   })
 }
 
-export async function getRuns (runId: string) {
-  const result = await axios.get(
+async function getRuns(runId: string): Promise<RunStatus> {
+  const result = await axios.get<RunStatus>(
     `${process.env.INNGEST_SERVER_HOST}/v1/events/${runId}/runs`,
     {
       headers: {

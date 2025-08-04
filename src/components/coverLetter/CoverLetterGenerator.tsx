@@ -91,15 +91,16 @@ export function CoverLetterGenerator() {
           setSuggestions(data.content.suggestions)
         }
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Error fetching cover letter record:", err)
-      if (axios.isAxiosError(err)) {
-        if (err.code === "ECONNABORTED") {
+      if (err && typeof err === 'object' && 'isAxiosError' in err) {
+        const axiosError = err as any
+        if (axiosError.code === "ECONNABORTED") {
           setError("Request timed out. Please try again.")
-        } else if (err.response?.status === 404) {
+        } else if (axiosError.response?.status === 404) {
           setError("Cover letter not found.")
         } else {
-          setError(`Failed to load cover letter: ${err.response?.data?.message || err.message}`)
+          setError(`Failed to load cover letter: ${axiosError.response?.data?.message || axiosError.message}`)
         }
       } else {
         setError("An unexpected error occurred while loading the cover letter.")

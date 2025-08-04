@@ -1,8 +1,16 @@
 import { inngest } from '@/inngest/client'
 import { currentUser } from '@clerk/nextjs/server'
+import { NextRequest } from 'next/server'
 import axios from 'axios'
 
-export async function POST(req: Request) {
+interface RunStatus {
+  data?: Array<{
+    status?: string
+    output?: Record<string, unknown>
+  }>
+}
+
+export async function POST(req: NextRequest) {
   const { fullName, jobTitle, companyName, resumeHighlights, jobDescription } = await req.json()
   const user = await currentUser()
 
@@ -21,7 +29,7 @@ export async function POST(req: Request) {
   const runId = resultIds.ids[0]
   console.log(runId)
 
-  let runStatus
+  let runStatus: RunStatus | undefined
   while (true) {
     runStatus = await getRuns(runId)
     const status = runStatus?.data?.[0]?.status
@@ -36,8 +44,8 @@ export async function POST(req: Request) {
   })
 }
 
-async function getRuns(runId: string) {
-  const result = await axios.get(
+async function getRuns(runId: string): Promise<RunStatus> {
+  const result = await axios.get<RunStatus>(
     `${process.env.INNGEST_SERVER_HOST}/v1/events/${runId}/runs`,
     {
       headers: {

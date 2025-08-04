@@ -9,7 +9,7 @@ import {
 import type React from 'react'
 
 import { Input } from '@/components/ui/input'
-import { FileUp, Loader2, Sparkles } from 'lucide-react'
+import { Loader2, Sparkles } from 'lucide-react'
 import { useImperativeHandle, useState, forwardRef } from 'react'
 import axios from 'axios'
 import { Button } from '@/components/ui/button'
@@ -25,6 +25,7 @@ export const RoadmapDialogue = forwardRef<RoadmapDialogueRef>((_, ref) => {
   const [open, setOpen] = useState(false)
   const [userInput, setUserInput] = useState<string>('')
   const [isGenerating, setIsGenerating] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string | null>(null)
   const [limitModalOpen, setLimitModalOpen] = useState(false)
   const router = useRouter()
