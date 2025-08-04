@@ -11,7 +11,6 @@ import type React from 'react'
 import { Input } from '@/components/ui/input'
 import { FileUp, Loader2, Sparkles } from 'lucide-react'
 import { useImperativeHandle, useState, forwardRef } from 'react'
-import { v7 } from 'uuid'
 import axios from 'axios'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
@@ -28,7 +27,6 @@ export const RoadmapDialogue = forwardRef<RoadmapDialogueRef>((_, ref) => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [limitModalOpen, setLimitModalOpen] = useState(false)
-  const roadmapid = v7()
   const router = useRouter()
   const { user } = useUser()
 
@@ -37,43 +35,51 @@ export const RoadmapDialogue = forwardRef<RoadmapDialogueRef>((_, ref) => {
   }))
 
   const checkUsageAndGenerate = async () => {
-    if (!user?.primaryEmailAddress?.emailAddress) return
+    if (isGenerating) return // Prevent double click
+    setIsGenerating(true)
+    if (!user?.primaryEmailAddress?.emailAddress) {
+      setIsGenerating(false)
+      return
+    }
 
     try {
-      const response = await axios.post<{ canUse: boolean }>('/api/check-usage', {
-        userEmail: user.primaryEmailAddress.emailAddress,
-        agentType: 'roadmap-generator'
-      })
-      
-      console.log(`Roadmap generation check:`, response.data)
-      
+      const response = await axios.post<{ canUse: boolean }>(
+        '/api/check-usage',
+        {
+          userEmail: user.primaryEmailAddress.emailAddress,
+          agentType: 'roadmap-generator'
+        }
+      )
+
       if (response.data.canUse) {
-        // User can generate roadmap
         await generateRoadMap()
       } else {
-        // Show limit modal
         setLimitModalOpen(true)
+        setIsGenerating(false)
       }
     } catch (error) {
-      console.error('Error checking usage:', error)
       // If error, allow generation as fallback
       await generateRoadMap()
     }
   }
 
   const generateRoadMap = async () => {
+    if (isGenerating) return // Prevent double click
+    setError(null)
+    const roadmapid = crypto.randomUUID()
     try {
-      setIsGenerating(true)
-      setError(null)
-      const roadmapResult = await axios.post('/api/ai-roadmap-agent', {
+      await axios.post('/api/ai-roadmap-agent', {
         roadmapId: roadmapid,
         userInput: userInput
       })
-      console.log(roadmapResult)
+      // Success, redirect
+      router.push('/ai-tools/ai-roadmap-generator/' + roadmapid)
+      setOpen(false)
     } catch (e: any) {
-      console.error('RoadMap generator failed', e)
       if (e.response?.status === 403) {
-        setError("You've reached the usage limit for roadmap generation. Please upgrade to Premium for unlimited access.")
+        setError(
+          "You've reached the usage limit for roadmap generation. Please upgrade to Premium for unlimited access."
+        )
         setTimeout(() => {
           setOpen(false)
           router.push('/billing')
@@ -82,13 +88,7 @@ export const RoadmapDialogue = forwardRef<RoadmapDialogueRef>((_, ref) => {
         setError('Failed to generate roadmap. Please try again.')
       }
     } finally {
-      if (!error) {
-        router.push('/ai-tools/ai-roadmap-generator/' + roadmapid)
-        setIsGenerating(false)
-        setOpen(false)
-      } else {
-        setIsGenerating(false)
-      }
+      setIsGenerating(false)
     }
   }
 
@@ -110,7 +110,7 @@ export const RoadmapDialogue = forwardRef<RoadmapDialogueRef>((_, ref) => {
               onChange={e => setUserInput(e.target.value)}
               placeholder='e.g Full Stack Developer'
             />
-            {error && <p className="text-sm text-red-400">{error}</p>}
+            {error && <p className='text-sm text-red-400'>{error}</p>}
             <Button
               onClick={checkUsageAndGenerate}
               disabled={isGenerating || !userInput || !!error}
@@ -135,11 +135,10 @@ export const RoadmapDialogue = forwardRef<RoadmapDialogueRef>((_, ref) => {
           </div>
         </DialogContent>
       </Dialog>
-      
-      <LimitModal 
-        open={limitModalOpen} 
+      <LimitModal
+        open={limitModalOpen}
         onOpenChange={setLimitModalOpen}
-        featureName="Roadmap Generator"
+        featureName='Roadmap Generator'
       />
     </>
   )

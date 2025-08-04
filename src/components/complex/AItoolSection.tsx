@@ -18,6 +18,18 @@ const AItoolSection = () => {
   const roadmapModalRef = useRef<RoadmapDialogueRef>(null)
   const [limitModalOpen, setLimitModalOpen] = useState(false)
   const [limitFeatureName, setLimitFeatureName] = useState('')
+  
+  // Loading states for each tool
+  const [loadingStates, setLoadingStates] = useState({
+    chat: false,
+    resume: false,
+    roadmap: false,
+    coverLetter: false
+  })
+
+  const setLoading = (tool: keyof typeof loadingStates, loading: boolean) => {
+    setLoadingStates(prev => ({ ...prev, [tool]: loading }))
+  }
 
   const checkUsageAndProceed = async (agentType: string, featureName: string, onSuccess: () => void) => {
     if (!user?.primaryEmailAddress?.emailAddress) return
@@ -45,60 +57,84 @@ const AItoolSection = () => {
 
   const onClickChatAgent = async () => {
     if (!isLoaded) return
+    if (loadingStates.chat) return // Prevent double click
 
     if (!isSignedIn) {
       return router.push('/dashboard')
     }
-    const chatid = v7()
-    await axios.post('/api/history', {
-      recordId: chatid,
-      content: ['Dummy'],
-      aiAgentType: 'ai-chat'
-    })
-    router.push('/ai-tools/ai-chat/' + chatid)
+    
+    setLoading('chat', true)
+    try {
+      const chatid = v7()
+      await axios.post('/api/history', {
+        recordId: chatid,
+        content: ['Dummy'],
+        aiAgentType: 'ai-chat'
+      })
+      router.push('/ai-tools/ai-chat/' + chatid)
+    } catch (error) {
+      console.error('Error creating chat:', error)
+      setLoading('chat', false)
+    }
   }
 
   const onClickRoadmapAgent = async () => {
     if (!isLoaded) return
+    if (loadingStates.roadmap) return // Prevent double click
 
     if (!isSignedIn) {
       return router.push('/dashboard')
     }
 
-    await checkUsageAndProceed('roadmap-generator', 'Roadmap Generator', () => {
+    setLoading('roadmap', true)
+    try {
+      // Just open the modal - usage will be checked when user actually generates roadmap
       roadmapModalRef.current?.open()
-    })
+    } finally {
+      setLoading('roadmap', false)
+    }
   }
 
   const onClickResumeAgent = async () => {
     if (!isLoaded) return
+    if (loadingStates.resume) return // Prevent double click
 
     if (!isSignedIn) {
       return router.push('/dashboard')
     }
 
-    await checkUsageAndProceed('resume-analyzer', 'Resume Analyzer', () => {
+    setLoading('resume', true)
+    try {
+      // Just open the modal - usage will be checked when user actually analyzes resume
       resumeModalRef.current?.open()
-    })
+    } finally {
+      setLoading('resume', false)
+    }
   }
 
   const onClickCoverLetterGenerator = async () => {
     if (!isLoaded) return
+    if (loadingStates.coverLetter) return // Prevent double click
 
     if (!isSignedIn) {
       return router.push('/dashboard')
     }
 
-    await checkUsageAndProceed('cover-letter-generator', 'Cover Letter Generator', () => {
-      const letterid = v7()
-      axios.post('/api/history', {
-        recordId: letterid,
-        content: ['Dummy'],
-        aiAgentType: 'ai-cover-letter-generator'
-      }).then(() => {
+    setLoading('coverLetter', true)
+    try {
+      await checkUsageAndProceed('cover-letter-generator', 'Cover Letter Generator', async () => {
+        const letterid = v7()
+        await axios.post('/api/history', {
+          recordId: letterid,
+          content: ['Dummy'],
+          aiAgentType: 'ai-cover-letter-generator'
+        })
         router.push('/ai-tools/ai-cover-letter-generator/' + letterid)
       })
-    })
+    } catch (error) {
+      console.error('Error creating cover letter:', error)
+      setLoading('coverLetter', false)
+    }
   }
 
   const tools: {
@@ -108,6 +144,7 @@ const AItoolSection = () => {
     color: 'purple' | 'blue' | 'green' | 'orange'
     onClickLabel: string
     onClick?: () => void
+    isLoading: boolean
   }[] = [
     {
       title: 'AI Career Q&A Chat',
@@ -115,7 +152,8 @@ const AItoolSection = () => {
       icon: <MessageCircle className='w-8 h-8 text-white' />,
       color: 'purple',
       onClickLabel: 'Ask Now',
-      onClick: onClickChatAgent
+      onClick: onClickChatAgent,
+      isLoading: loadingStates.chat
     },
     {
       title: 'AI Resume Analyzer',
@@ -123,7 +161,8 @@ const AItoolSection = () => {
       icon: <FileText className='w-8 h-8 text-white' />,
       color: 'blue',
       onClickLabel: 'Analyze Now',
-      onClick: onClickResumeAgent
+      onClick: onClickResumeAgent,
+      isLoading: loadingStates.resume
     },
     {
       title: 'Career Roadmap Generator',
@@ -131,7 +170,8 @@ const AItoolSection = () => {
       icon: <Map className='w-8 h-8 text-white' />,
       color: 'green',
       onClickLabel: 'Generate Now',
-      onClick: onClickRoadmapAgent
+      onClick: onClickRoadmapAgent,
+      isLoading: loadingStates.roadmap
     },
     {
       title: 'Cover Letter Generator',
@@ -139,7 +179,8 @@ const AItoolSection = () => {
       icon: <PenTool className='w-8 h-8 text-white' />,
       color: 'orange',
       onClickLabel: 'Create Now',
-      onClick: onClickCoverLetterGenerator
+      onClick: onClickCoverLetterGenerator,
+      isLoading: loadingStates.coverLetter
     }
   ]
 
@@ -165,6 +206,7 @@ const AItoolSection = () => {
             color={tool.color}
             onClickLabel={tool.onClickLabel}
             onClick={tool.onClick}
+            isLoading={tool.isLoading}
           />
         ))}
       </div>
