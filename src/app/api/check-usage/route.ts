@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { currentUser } from '@clerk/nextjs/server'
 import { checkAndUpdateUsage, AgentType } from '@/lib/usage-utils'
 
 export async function POST(req: NextRequest) {

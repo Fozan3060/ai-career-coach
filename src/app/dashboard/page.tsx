@@ -4,8 +4,6 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { Sparkles, TrendingUp, Target, Zap, Rocket } from "lucide-react"
-import AItoolSection from "@/components/complex/AItoolSection"
-import LandingHeader from "@/components/complex/LandingHeader"
 import { StatsSection } from "@/components/marketing/StatsSection"
 
 

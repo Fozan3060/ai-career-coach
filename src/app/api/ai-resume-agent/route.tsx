@@ -7,7 +7,7 @@ import { currentUser } from '@clerk/nextjs/server'
 interface RunStatus {
   data?: Array<{
     status?: string
-    output?: any
+    output?: Record<string, unknown>
   }>
 }
 

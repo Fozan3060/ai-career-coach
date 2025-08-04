@@ -11,7 +11,6 @@ import {
   Rocket
 } from 'lucide-react'
 import LandingHeader from '@/components/complex/LandingHeader'
-import { AIToolCard } from '@/components/compound/AIToolsCard'
 import AItoolSection from '@/components/complex/AItoolSection'
 
 export default function AICareerCoachLanding () {
