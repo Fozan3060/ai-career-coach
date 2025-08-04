@@ -50,7 +50,7 @@ const AIChat = () => {
     return <ChatPageSkeleton />
   }
   return (
-    <div className='flex flex-col h-screen pt-24 bg-slate-950'>
+    <div className='flex flex-col h-screen  bg-slate-950'>
       {/* Collapsible Header */}
       <CollapsibleHeader
         isCollapsed={isHeaderCollapsed}

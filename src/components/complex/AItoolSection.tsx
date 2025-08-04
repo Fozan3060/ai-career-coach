@@ -3,7 +3,6 @@
 import { FileText, Map, MessageCircle, PenTool } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useRef, useState } from 'react'
-import { v7 } from 'uuid'
 import { AIToolCard } from '../compound/AIToolsCard'
 import axios from 'axios'
 import { ResumeDialogue, ResumeDialogueRef } from '../resume/ResumeDialogue'
@@ -64,17 +63,21 @@ const AItoolSection = () => {
     }
     
     setLoading('chat', true)
+    const chatid = crypto.randomUUID()
+    
+    // Navigate immediately, API call happens in background
+    router.push('/ai-tools/ai-chat/' + chatid)
+    
+    // API call in background (non-blocking)
     try {
-      const chatid = v7()
       await axios.post('/api/history', {
         recordId: chatid,
         content: ['Dummy'],
         aiAgentType: 'ai-chat'
       })
-      router.push('/ai-tools/ai-chat/' + chatid)
     } catch (error) {
-      console.error('Error creating chat:', error)
-      setLoading('chat', false)
+      console.error('Error creating chat history:', error)
+      // Don't reset loading since user already navigated
     }
   }
 
@@ -121,19 +124,23 @@ const AItoolSection = () => {
     }
 
     setLoading('coverLetter', true)
+    const letterid = crypto.randomUUID()
+    
+    // Navigate immediately, API calls happen in background
+    router.push('/ai-tools/ai-cover-letter-generator/' + letterid)
+    
+    // Usage check and API call in background (non-blocking)
     try {
       await checkUsageAndProceed('cover-letter-generator', 'Cover Letter Generator', async () => {
-        const letterid = v7()
         await axios.post('/api/history', {
           recordId: letterid,
           content: ['Dummy'],
           aiAgentType: 'ai-cover-letter-generator'
         })
-        router.push('/ai-tools/ai-cover-letter-generator/' + letterid)
       })
     } catch (error) {
       console.error('Error creating cover letter:', error)
-      setLoading('coverLetter', false)
+      // Don't reset loading since user already navigated
     }
   }
 
@@ -185,7 +192,7 @@ const AItoolSection = () => {
   ]
 
   return (
-    <section className='py-20 bg-gray-900/50 mt-24'>
+    <section className='py-20 bg-gray-900/50 '>
       <div className='container mx-auto '>
         <div className='text-center mb-16'>
           <h2 className='text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent'>
