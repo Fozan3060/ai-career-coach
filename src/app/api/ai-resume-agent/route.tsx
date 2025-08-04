@@ -4,19 +4,17 @@ import { inngest } from '@/inngest/client'
 import axios from 'axios'
 import { currentUser } from '@clerk/nextjs/server'
 
-type content = {
-  status: string
-  output: object
+interface RunStatus {
+  data?: Array<{
+    status?: string
+    output?: any
+  }>
 }
 
-type runstatusType = {
-  data: content[]
-}
-
-export async function POST (req: NextRequest) {
+export async function POST(req: NextRequest) {
   const FormData = await req.formData()
-  const resumeFile: any = FormData.get('resumeFile')
-  const recordId = FormData.get('recordId')
+  const resumeFile = FormData.get('resumeFile') as File
+  const recordId = FormData.get('recordId') as string
   const user = await currentUser()
   const loader = new WebPDFLoader(resumeFile)
   const docs = await loader.load()
@@ -36,15 +34,14 @@ export async function POST (req: NextRequest) {
     }
   })
 
-  const runId = await resultIds.ids[0]
+  const runId = resultIds.ids[0]
   console.log(runId)
 
-  let runStatus
+  let runStatus: RunStatus | undefined
 
   while (true) {
-    runStatus = (await getRuns(runId)) as runstatusType
+    runStatus = await getRuns(runId)
 
-    // ✅ Fix type error here
     const status = runStatus?.data?.[0]?.status
     if (status === 'Completed') break
 
@@ -54,15 +51,14 @@ export async function POST (req: NextRequest) {
 
   const output = runStatus?.data?.[0]?.output
 
-  // ✅ FIX: Send a proper response back
   return new Response(JSON.stringify({ output }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }
   })
 }
 
-export async function getRuns (runId: string) {
-  const result = await axios.get(
+async function getRuns(runId: string): Promise<RunStatus> {
+  const result = await axios.get<RunStatus>(
     `${process.env.INNGEST_SERVER_HOST}/v1/events/${runId}/runs`,
     {
       headers: {
