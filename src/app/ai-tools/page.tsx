@@ -2,7 +2,9 @@ import AItoolSection from '@/components/complex/AItoolSection'
 import React from 'react'
 
 const page = () => {
-  return <AItoolSection />
+  return <div className='mt-24'>
+    <AItoolSection />
+  </div>
 }
 
 export default page

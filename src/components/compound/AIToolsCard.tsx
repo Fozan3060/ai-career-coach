@@ -3,6 +3,7 @@
 import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Loader2 } from "lucide-react"
 
 interface AIToolCardProps {
   title: string
@@ -11,6 +12,7 @@ interface AIToolCardProps {
   color: keyof typeof colorMappings
   onClickLabel: string
   onClick?: () => void
+  isLoading?: boolean
 }
 
 const colorMappings = {
@@ -60,7 +62,7 @@ const colorMappings = {
   },
 } as const
 
-export function AIToolCard({ title, description, icon, color, onClickLabel, onClick }: AIToolCardProps) {
+export function AIToolCard({ title, description, icon, color, onClickLabel, onClick, isLoading = false }: AIToolCardProps) {
   const colorConfig = colorMappings[color]
 
   return (
@@ -99,6 +101,7 @@ export function AIToolCard({ title, description, icon, color, onClickLabel, onCl
         <Button
           variant="outline"
           onClick={onClick}
+          disabled={isLoading}
           className={`
             w-full h-11 font-medium
             bg-gray-950/80 backdrop-blur-sm
@@ -116,10 +119,18 @@ export function AIToolCard({ title, description, icon, color, onClickLabel, onCl
             border-2
             relative overflow-hidden
             group/button
+            ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}
           `}
         >
-          <span className="relative z-10 transition-transform duration-300 group-hover/button:scale-105">
-            {onClickLabel}
+          <span className="relative z-10 transition-transform duration-300 group-hover/button:scale-105 flex items-center justify-center gap-2">
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              onClickLabel
+            )}
           </span>
 
           {/* Subtle shine effect on hover */}
