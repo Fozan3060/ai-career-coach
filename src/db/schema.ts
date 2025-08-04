@@ -17,3 +17,11 @@ export const HistoryTable = pgTable('historyTable', {
   aiAgentType: varchar('aiAgentType'),
   metaData: varchar()
 })
+
+export const UserUsageTable = pgTable('userUsage', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  userEmail: varchar('userEmail').references(() => usersTable.email).notNull(),
+  AgentType: varchar('AgentType').notNull(), // 'resume-analyzer', 'roadmap-generator', 'cover-letter-generator'
+  usageCount: integer('usageCount').default(0).notNull(),
+
+})

@@ -10,6 +10,7 @@ import { useParams } from "next/navigation"
 import axios from "axios"
 import type { CoverLetterFormData, CoverLetterResponse } from "@/types/coverletter"
 import type { CoverLetterRecord } from "@/types/coverletter"
+import { useUser } from "@clerk/nextjs"
 
 // Constants moved outside component to prevent recreation
 const REQUIRED_FIELDS: (keyof CoverLetterFormData)[] = [
@@ -30,6 +31,7 @@ const INITIAL_FORM_DATA: CoverLetterFormData = {
 
 export function CoverLetterGenerator() {
   const { letterid } = useParams()
+  const { user } = useUser()
 
   // State management
   const [formData, setFormData] = useState<CoverLetterFormData>(INITIAL_FORM_DATA)
@@ -119,6 +121,27 @@ export function CoverLetterGenerator() {
       return
     }
 
+    // Check usage before generating
+    try {
+      const response = await axios.post<{ canUse: boolean }>('/api/check-usage', {
+        userEmail: user?.primaryEmailAddress?.emailAddress,
+        agentType: 'cover-letter-generator'
+      })
+      
+      console.log(`Cover letter generation check:`, response.data)
+      
+      if (!response.data.canUse) {
+        setError("You've reached the usage limit for cover letter generation. Please upgrade to Premium for unlimited access.")
+        setTimeout(() => {
+          window.location.href = '/billing'
+        }, 2000)
+        return
+      }
+    } catch (error) {
+      console.error('Error checking usage:', error)
+      // If error, allow generation as fallback
+    }
+
     setIsGenerating(true)
     setError(null)
 
@@ -132,7 +155,7 @@ export function CoverLetterGenerator() {
 
       console.log("AI Response:", data)
 
-      const coverLetter = data?.output?.output?.[0]?.content
+      const coverLetter = data?.output?.coverLetter
       if (!coverLetter) {
         throw new Error("No cover letter content received from AI")
       }
@@ -159,15 +182,22 @@ export function CoverLetterGenerator() {
       )
 
       console.log("Cover letter saved to database with ID:", letterid)
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Error generating cover letter:", err)
-      if (axios.isAxiosError(err)) {
-        if (err.code === "ECONNABORTED") {
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as any
+        if (axiosError.code === "ECONNABORTED") {
           setError("Request timed out. Please try again with a shorter description.")
-        } else if (err.response?.status === 429) {
+        } else if (axiosError.response?.status === 429) {
           setError("Too many requests. Please wait a moment and try again.")
+        } else if (axiosError.response?.status === 403) {
+          setError("You've reached the usage limit for cover letter generation. Please upgrade to Premium for unlimited access.")
+          // Redirect to billing page after showing error
+          setTimeout(() => {
+            window.location.href = '/billing'
+          }, 2000)
         } else {
-          setError(`Failed to generate cover letter: ${err.response?.data?.message || err.message}`)
+          setError(`Failed to generate cover letter: ${axiosError.response?.data?.message || axiosError.message}`)
         }
       } else {
         setError("An unexpected error occurred. Please try again.")
@@ -175,7 +205,7 @@ export function CoverLetterGenerator() {
     } finally {
       setIsGenerating(false)
     }
-  }, [formData, validationErrors, letterid])
+  }, [formData, validationErrors, letterid, user?.primaryEmailAddress?.emailAddress])
 
   const copyToClipboard = useCallback(async () => {
     if (!generatedLetter) return
