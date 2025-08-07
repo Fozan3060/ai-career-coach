@@ -78,7 +78,7 @@ export function useChat () {
       const result = await axios.post<AiApiResponse>('/api/ai-career-chat', {
         userInput: content.trim()
       })
-
+      
       console.log('AI Response:', result.data)
 
       // Extract the AI response from the nested structure
@@ -163,7 +163,7 @@ export function useChat () {
       })
 
       const record = result.data
-
+      console.log(record, 'record')
       if (record?.content) {
         const chatFromDb: Chat = {
           id: record.content.id,
