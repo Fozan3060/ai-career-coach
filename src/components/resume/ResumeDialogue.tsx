@@ -16,7 +16,7 @@ export type ResumeDialogueRef = {
 }
 
 
-const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3 MB in bytes
+const MAX_FILE_SIZE = 256 * 1024 
 
 export const ResumeDialogue = forwardRef<ResumeDialogueRef>((_, ref) => {
   const [open, setOpen] = useState(false)
