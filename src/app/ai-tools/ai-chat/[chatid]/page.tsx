@@ -42,7 +42,7 @@ const AIChat = () => {
     if (chatid) {
       getMessageList()
     }
-  }, [chatid, getMessageList])
+  }, [])
 
   const handleSuggestionClick = (suggestion: string) => {
     sendMessage(suggestion)
