@@ -5,11 +5,14 @@ import { ErrorBanner } from '@/components/chat/ErrorBanner'
 import { WelcomeScreen } from '@/components/chat/WelcomeScreen'
 import { ChatInput } from '@/components/chat/ChatInput'
 import { useChat } from '@/hooks/useChat'
-import { ChatMessages } from '@/components/chat/ChatMessage'
+import { ChatMessageContainer } from '@/components/chat/ChatMessage'
 import { useParams } from 'next/navigation'
 import { ChatPageSkeleton } from '@/components/chat/ChatPageSkeleton'
+
 const AIChat = () => {
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false)
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false)
+  
   const {
     currentChat,
     isLoading,
@@ -22,10 +25,13 @@ const AIChat = () => {
     isLoadingAllChats
   } = useChat()
   const { chatid } = useParams()
+  
   const toggleHeader = () => {
     setIsHeaderCollapsed(!isHeaderCollapsed)
   }
+  
   console.log(currentChat)
+  
   const handleSendMessage = async (content: string) => {
     await sendMessage(content)
   }
@@ -40,7 +46,13 @@ const AIChat = () => {
 
   useEffect(() => {
     if (chatid) {
-      getMessageList()
+      setIsLoadingHistory(true)
+      getMessageList().finally(() => {
+        // Add a small delay to ensure typewriter doesn't trigger during initial load
+        setTimeout(() => {
+          setIsLoadingHistory(false)
+        }, 500)
+      })
     }
   }, [])
 
@@ -51,8 +63,9 @@ const AIChat = () => {
   if (isLoadingAllChats) {
     return <ChatPageSkeleton />
   }
+  
   return (
-    <div className='flex flex-col h-screen  bg-slate-950'>
+    <div className='flex flex-col bg-slate-950 min-h-[calc(100vh-4rem)]'>
       {/* Collapsible Header */}
       <CollapsibleHeader
         isCollapsed={isHeaderCollapsed}
@@ -68,7 +81,11 @@ const AIChat = () => {
         {!currentChat || currentChat.messages === undefined ? (
           <WelcomeScreen onSuggestionClick={handleSuggestionClick} />
         ) : (
-          <ChatMessages messages={currentChat.messages} isLoading={isLoading} />
+          <ChatMessageContainer 
+            messages={currentChat.messages} 
+            isLoading={isLoading} 
+            isLoadingFromHistory={isLoadingHistory}
+          />
         )}
       </div>
 

@@ -11,11 +11,11 @@ interface CollapsibleHeaderProps {
 
 export function CollapsibleHeader({ isCollapsed, onToggle, onNewChat }: CollapsibleHeaderProps) {
   return (
-    <div className="border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
+    <div className="border-b z-10 sticky top-16 border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
       {/* Always visible top bar */}
-      <div className="flex items-center justify-between px-6 py-4">
+      <div className="flex items-center justify-between px-4 sm:px-6 pt-4 pb-3">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl md:text-2xl font-bold text-white">AI Career Q/A Chat</h1>
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white">AI Career Q/A Chat</h1>
 
           {/* Collapse/Expand Button */}
           <button
@@ -45,7 +45,7 @@ export function CollapsibleHeader({ isCollapsed, onToggle, onNewChat }: Collapsi
           isCollapsed ? "max-h-0 opacity-0" : "max-h-32 opacity-100"
         }`}
       >
-        <div className="px-6 pb-4">
+        <div className="px-4 sm:px-6 pb-3">
           <p className="text-slate-400 text-sm md:text-base leading-relaxed">
             Smarter career decisions start here — get tailored advice, real-time market insights
           </p>
