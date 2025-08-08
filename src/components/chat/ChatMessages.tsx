@@ -7,10 +7,9 @@ import type { Message } from "@/types/chat"
 interface ChatMessageProps {
   message: Message
   isLatest?: boolean
-  onContentUpdate?: () => void // Callback to trigger scroll
 }
 
-export function ChatMessage({ message, isLatest = false, onContentUpdate }: ChatMessageProps) {
+export function ChatMessage({ message, isLatest = false }: ChatMessageProps) {
   const [displayedContent, setDisplayedContent] = useState("")
   const [isTyping, setIsTyping] = useState(false)
 
@@ -26,37 +25,27 @@ export function ChatMessage({ message, isLatest = false, onContentUpdate }: Chat
       const typeWriter = () => {
         if (currentIndex < content.length) {
           // Add character by character with some randomness for natural feel
-          const charsToAdd = Math.random() > 0.7 ? 2 : 1 // Sometimes add 2 chars for speed variation
+          const charsToAdd = Math.random() > 0.7 ? 2 : 1
           const nextChars = content.slice(currentIndex, currentIndex + charsToAdd)
 
-          setDisplayedContent((prev) => {
-            const newContent = prev + nextChars
-            // Trigger scroll update after state update
-            setTimeout(() => {
-              onContentUpdate?.()
-            }, 0)
-            return newContent
-          })
+          setDisplayedContent((prev) => prev + nextChars)
 
           currentIndex += charsToAdd
 
           // Variable speed: faster for spaces, slower for punctuation
           const char = content[currentIndex - 1]
-          let delay = 15 // Base delay
+          let delay = 20 // Base delay
 
           if (char === " ")
-            delay = 5 // Faster for spaces
+            delay = 8 // Faster for spaces
           else if ([".", "!", "?", "\n"].includes(char))
-            delay = 50 // Slower for punctuation
-          else if ([",", ";", ":"].includes(char)) delay = 30 // Medium for commas
+            delay = 100 // Slower for punctuation
+          else if ([",", ";", ":"].includes(char)) 
+            delay = 40 // Medium for commas
 
           setTimeout(typeWriter, delay)
         } else {
           setIsTyping(false)
-          // Final scroll update when typing is complete
-          setTimeout(() => {
-            onContentUpdate?.()
-          }, 0)
         }
       }
 
@@ -73,7 +62,7 @@ export function ChatMessage({ message, isLatest = false, onContentUpdate }: Chat
       setDisplayedContent(message.content)
       setIsTyping(false)
     }
-  }, [message.content, message.role, isLatest, onContentUpdate])
+  }, [message.content, message.role, isLatest])
 
   return (
     <div className={`flex gap-3 md:gap-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
